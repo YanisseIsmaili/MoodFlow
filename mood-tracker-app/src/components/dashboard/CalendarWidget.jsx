@@ -101,7 +101,7 @@ const CalendarWidget = () => {
   const selectedDayMood = getMoodForDay(selectedDay);
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
+    <div className="h-full bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <button

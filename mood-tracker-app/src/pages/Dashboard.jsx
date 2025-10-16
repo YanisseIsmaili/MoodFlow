@@ -112,10 +112,10 @@ const Dashboard = ({ onOpenSettings }) => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
           {visibleWidgets.map((widget) => (
-            <div key={widget.id} className={getWidgetClass(widget.id)}>
-              <DraggableWidget id={widget.id}>
+            <div key={widget.id} className={`${getWidgetClass(widget.id)} flex`}>
+              <DraggableWidget id={widget.id} className="w-full">
                 {renderWidget(widget.id)}
               </DraggableWidget>
             </div>

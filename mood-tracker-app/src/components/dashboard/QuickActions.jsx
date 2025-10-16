@@ -31,7 +31,7 @@ const QuickActions = ({ onAddNote, onAddEvent }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
+    <div className="h-full bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
       <div className="flex items-center gap-2 text-amber-700 mb-4">
         <Zap className="w-5 h-5" />
         <span className="font-semibold">{t('quickActions')}</span>
