@@ -70,7 +70,7 @@ const TodaysFocus = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
+    <div className="h-full bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-amber-700">
           <Target className="w-5 h-5" />
