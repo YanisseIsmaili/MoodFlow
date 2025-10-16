@@ -4,9 +4,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/v1/users/users.module';
 import { MoodsModule } from './modules/v1/moods/moods.module';
+import { AuthModule } from './modules/v1/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
     imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
         TypeOrmModule.forRoot({
             type: 'sqlite',
             database: 'database.sqlite', // le fichier sera créé automatiquement
@@ -15,6 +18,7 @@ import { MoodsModule } from './modules/v1/moods/moods.module';
         }),
         UsersModule,
         MoodsModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
