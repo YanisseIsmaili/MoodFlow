@@ -33,20 +33,78 @@ const Register = () => {
         setError("");
         setSuccess("");
         
-        // Validation simple
+        // Validation des champs requis
+        if (!formData.username.trim()) {
+            setError("Le nom d'utilisateur est requis.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!formData.email.trim()) {
+            setError("L'email est requis.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!formData.password.trim()) {
+            setError("Le mot de passe est requis.");
+            setIsLoading(false);
+            return;
+        }
+
+        // Validation des longueurs maximales selon le backend
+        if (formData.firstName && formData.firstName.length > 50) {
+            setError("Le prénom ne peut pas dépasser 50 caractères.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (formData.lastName && formData.lastName.length > 50) {
+            setError("Le nom ne peut pas dépasser 50 caractères.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (formData.username.length > 50) {
+            setError("Le nom d'utilisateur ne peut pas dépasser 50 caractères.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (formData.email.length > 100) {
+            setError("L'email ne peut pas dépasser 100 caractères.");
+            setIsLoading(false);
+            return;
+        }
+
+        // Validation de l'email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError("Veuillez saisir un email valide.");
+            setIsLoading(false);
+            return;
+        }
+
+        // Validation de confirmation du mot de passe
         if (formData.password !== formData.confirmPassword) {
             setError("Les mots de passe ne correspondent pas!");
             setIsLoading(false);
             return;
         }
 
+        // Validation du mot de passe selon les critères du backend
         if (formData.password.length < 8) {
             setError("Le mot de passe doit contenir au moins 8 caractères.");
             setIsLoading(false);
             return;
         }
 
-        // Validation du mot de passe selon les critères du backend
+        if (formData.password.length > 50) {
+            setError("Le mot de passe ne peut pas dépasser 50 caractères.");
+            setIsLoading(false);
+            return;
+        }
+
         if (!/(?=.*[A-Z])/.test(formData.password)) {
             setError("Le mot de passe doit contenir au moins une lettre majuscule.");
             setIsLoading(false);

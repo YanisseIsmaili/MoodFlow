@@ -65,7 +65,7 @@ class ApiService {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
-      username: userData.email, // Utiliser l'email comme username
+      username: userData.username, // Utiliser le username fourni
       password: userData.password,
     };
     
@@ -83,6 +83,14 @@ class ApiService {
   // Méthodes pour les humeurs
   async getMoods() {
     return this.makeRequest('/api/v1/moods');
+  }
+
+  async getMoodsByUser(username) {
+    return this.makeRequest(`/api/v1/moods/user/${username}`);
+  }
+
+  async getMoodsByUserAndMonth(username, date) {
+    return this.makeRequest(`/api/v1/moods/${username}?date=${date}`);
   }
 
   async createMood(moodData) {
