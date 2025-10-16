@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Smile, Meh, Frown, Heart, Zap, Save, X } from 'lucide-react';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const MoodSelector = () => {
+  const { t } = useLanguage();
   const [todayMood, setTodayMood] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [moodNote, setMoodNote] = useState('');
@@ -14,7 +16,7 @@ const MoodSelector = () => {
     { 
       id: 'amazing', 
       emoji: '😄', 
-      label: 'Super Bien', 
+      label: 'Incroyable', 
       color: 'from-green-400 to-emerald-500',
       bgColor: 'bg-green-100',
       textColor: 'text-green-800'
@@ -30,7 +32,7 @@ const MoodSelector = () => {
     { 
       id: 'okay', 
       emoji: '😐', 
-      label: 'Normal', 
+      label: 'Correct', 
       color: 'from-yellow-400 to-amber-500',
       bgColor: 'bg-yellow-100',
       textColor: 'text-yellow-800'
@@ -46,7 +48,7 @@ const MoodSelector = () => {
     { 
       id: 'bad', 
       emoji: '😢', 
-      label: 'Mal', 
+      label: 'Difficile', 
       color: 'from-red-400 to-pink-500',
       bgColor: 'bg-red-100',
       textColor: 'text-red-800'

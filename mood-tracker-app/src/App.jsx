@@ -1,16 +1,21 @@
 // src/App.jsx
 import React, { useState } from 'react';
 import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
+import SettingsModal from './components/modals/SettingsModal';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 function App() {
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  if (currentView === 'settings') {
-    return <Settings onBack={() => setCurrentView('dashboard')} />;
-  }
-
-  return <Dashboard onOpenSettings={() => setCurrentView('settings')} />;
+  return (
+    <LanguageProvider>
+      <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
+    </LanguageProvider>
+  );
 }
 
 export default App;

@@ -10,7 +10,7 @@ import QuickActions from '../components/dashboard/QuickActions';
 import MoodBoard from '../components/dashboard/MoodBoard';
 import CalendarWidget from '../components/dashboard/CalendarWidget';
 
-const Dashboard = () => {
+const Dashboard = ({ onOpenSettings }) => {
   const moodBoardRef = useRef(null);
   const calendarRef = useRef(null);
 
@@ -24,7 +24,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-100 p-8">
-      <Header />
+      <Header onOpenSettings={onOpenSettings} />
       
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Mood Selector - EN HAUT */}
