@@ -1,16 +1,23 @@
 import React, { useState } from "react";
-import { UserPlus, Mail, Lock, User, Sun, Coffee, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Mail, Lock, User, Sun, Coffee, Eye, EyeOff, Loader } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import apiService from "../services/api";
 
 const Register = () => {
     const [formData, setFormData] = useState({
         firstName: "",
-        lastName: "",
+        lastName: "", 
+        username: "",
         email: "",
         password: "",
         confirmPassword: ""
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -20,17 +27,73 @@ const Register = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError("");
+        setSuccess("");
         
         // Validation simple
         if (formData.password !== formData.confirmPassword) {
-            alert("Les mots de passe ne correspondent pas!");
+            setError("Les mots de passe ne correspondent pas!");
+            setIsLoading(false);
             return;
         }
 
-        // Handle register logic here
-        alert(`Inscription:\nPrénom: ${formData.firstName}\nNom: ${formData.lastName}\nEmail: ${formData.email}`);
+        if (formData.password.length < 8) {
+            setError("Le mot de passe doit contenir au moins 8 caractères.");
+            setIsLoading(false);
+            return;
+        }
+
+        // Validation du mot de passe selon les critères du backend
+        if (!/(?=.*[A-Z])/.test(formData.password)) {
+            setError("Le mot de passe doit contenir au moins une lettre majuscule.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!/(?=.*[a-z])/.test(formData.password)) {
+            setError("Le mot de passe doit contenir au moins une lettre minuscule.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!/(?=.*\d)/.test(formData.password)) {
+            setError("Le mot de passe doit contenir au moins un chiffre.");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!/(?=.*[@$!%*?&])/.test(formData.password)) {
+            setError("Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&).");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const userData = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+            };
+
+            const response = await apiService.register(userData);
+            
+            setSuccess("Compte créé avec succès ! Redirection vers la connexion...");
+            
+            // Rediriger vers la page de login après 2 secondes
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
+            
+        } catch (error) {
+            setError(error.message || "Erreur lors de la création du compte. Veuillez réessayer.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -46,6 +109,18 @@ const Register = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                        <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl">
+                            {error}
+                        </div>
+                    )}
+                    
+                    {success && (
+                        <div className="bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-xl">
+                            {success}
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-amber-900">
@@ -77,6 +152,22 @@ const Register = () => {
                                 placeholder="Dupont"
                             />
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-amber-900">
+                            <User className="w-4 h-4 inline mr-2" />
+                            Nom d'utilisateur
+                        </label>
+                        <input
+                            type="text"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-4 py-3 bg-white/60 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all placeholder-amber-500"
+                            placeholder="nom_utilisateur"
+                        />
                     </div>
 
                     <div className="space-y-2">
@@ -163,10 +254,20 @@ const Register = () => {
 
                     <button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-6 rounded-xl font-medium hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-6 rounded-xl font-medium hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
-                        <UserPlus className="w-5 h-5" />
-                        Créer mon compte
+                        {isLoading ? (
+                            <>
+                                <Loader className="w-5 h-5 animate-spin" />
+                                Création du compte...
+                            </>
+                        ) : (
+                            <>
+                                <UserPlus className="w-5 h-5" />
+                                Créer mon compte
+                            </>
+                        )}
                     </button>
                 </form>
 
