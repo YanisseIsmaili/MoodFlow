@@ -4,8 +4,10 @@ import { Calendar, Plus, X } from 'lucide-react';
 import { getDaysInMonth, getFirstDayOfMonth } from '../../utils/dateUtils';
 import { MONTH_NAMES, DAY_NAMES } from '../../constants';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const CalendarWidget = () => {
+  const { t, language } = useLanguage();
   const [selectedMonth, setSelectedMonth] = useState(9); // October
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedDay, setSelectedDay] = useState(16);
@@ -14,7 +16,6 @@ const CalendarWidget = () => {
   const [newEventTitle, setNewEventTitle] = useState('');
   const [newEventTime, setNewEventTime] = useState('10:00');
 
-  // Récupérer l'historique des humeurs
   const moodHistory = getFromStorage('moodHistory', []);
 
   useEffect(() => {
@@ -51,13 +52,11 @@ const CalendarWidget = () => {
     return events[getEventKey(day)] || [];
   };
 
-  // Récupérer l'humeur pour un jour donné
   const getMoodForDay = (day) => {
     const dateStr = new Date(selectedYear, selectedMonth, day).toDateString();
     return moodHistory.find(m => m.date === dateStr);
   };
 
-  // Obtenir l'emoji et la couleur de l'humeur
   const getMoodDisplay = (moodId) => {
     const moods = {
       amazing: { emoji: '😄', color: 'bg-green-400' },
@@ -67,6 +66,26 @@ const CalendarWidget = () => {
       bad: { emoji: '😢', color: 'bg-red-400' }
     };
     return moods[moodId] || null;
+  };
+
+  const getMoodLabelForCalendar = (moodId) => {
+    const labels = {
+      en: {
+        amazing: 'Amazing',
+        good: 'Good',
+        okay: 'Okay',
+        sad: 'Sad',
+        bad: 'Bad'
+      },
+      fr: {
+        amazing: 'Super Bien',
+        good: 'Bien',
+        okay: 'Normal',
+        sad: 'Triste',
+        bad: 'Mal'
+      }
+    };
+    return labels[language][moodId] || moodId;
   };
 
   const addEvent = () => {
@@ -100,6 +119,16 @@ const CalendarWidget = () => {
   const selectedDayEvents = getDayEvents(selectedDay);
   const selectedDayMood = getMoodForDay(selectedDay);
 
+  // Traduire les mois et jours
+  const monthNames = language === 'fr' ? [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+  ] : MONTH_NAMES;
+
+  const dayNames = language === 'fr' ? 
+    ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'] : 
+    DAY_NAMES;
+
   return (
     <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
       <div className="flex items-center justify-between mb-6">
@@ -113,7 +142,7 @@ const CalendarWidget = () => {
           <div className="flex items-center gap-2 text-amber-700">
             <Calendar className="w-5 h-5" />
             <span className="font-bold text-xl">
-              {MONTH_NAMES[selectedMonth]} {selectedYear}
+              {monthNames[selectedMonth]} {selectedYear}
             </span>
           </div>
           <button
@@ -128,7 +157,7 @@ const CalendarWidget = () => {
           className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-4 py-2 rounded-xl font-semibold hover:scale-105 transition-transform shadow-md flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          Add Event
+          {t('addEvent')}
         </button>
       </div>
 
@@ -136,7 +165,7 @@ const CalendarWidget = () => {
         <div className="mb-4 p-4 bg-white rounded-xl border-2 border-amber-300">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-bold text-amber-900">
-              Add Event for {MONTH_NAMES[selectedMonth]} {selectedDay}
+              {t('eventFor')} {monthNames[selectedMonth]} {selectedDay}
             </h3>
             <button 
               onClick={() => setShowAddEvent(false)}
@@ -149,7 +178,7 @@ const CalendarWidget = () => {
             type="text"
             value={newEventTitle}
             onChange={(e) => setNewEventTitle(e.target.value)}
-            placeholder="Event title..."
+            placeholder={t('eventTitle')}
             className="w-full px-3 py-2 border border-amber-300 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
           />
           <input
@@ -162,13 +191,13 @@ const CalendarWidget = () => {
             onClick={addEvent}
             className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white py-2 rounded-lg font-semibold hover:scale-105 transition-transform"
           >
-            Add Event
+            {t('addEvent')}
           </button>
         </div>
       )}
 
       <div className="grid grid-cols-7 gap-2">
-        {DAY_NAMES.map(day => (
+        {dayNames.map(day => (
           <div key={day} className="text-center font-semibold text-amber-700 py-2">
             {day}
           </div>
@@ -195,12 +224,10 @@ const CalendarWidget = () => {
             >
               <span className={moodDisplay ? 'text-lg font-bold' : ''}>{day}</span>
               
-              {/* Emoji de l'humeur */}
               {moodDisplay && day !== selectedDay && (
                 <span className="text-xl mt-1">{moodDisplay.emoji}</span>
               )}
               
-              {/* Indicateur d'événements */}
               {hasEvents && (
                 <div className="absolute bottom-1 flex gap-0.5">
                   {getDayEvents(day).slice(0, 3).map((_, idx) => (
@@ -216,30 +243,23 @@ const CalendarWidget = () => {
       <div className="mt-6 p-4 bg-amber-100 rounded-2xl">
         <div className="flex justify-between items-center mb-2">
           <div className="font-semibold text-amber-900">
-            {MONTH_NAMES[selectedMonth]} {selectedDay}, {selectedYear}
+            {monthNames[selectedMonth]} {selectedDay}, {selectedYear}
           </div>
           {(selectedDayEvents.length > 0 || selectedDayMood) && (
             <span className="text-xs bg-amber-300 text-amber-900 px-2 py-1 rounded-full">
-              {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? 's' : ''}
-              {selectedDayMood && ' • ' + (selectedDayMood.mood === 'amazing' ? 'Super Bien' : 
-                                          selectedDayMood.mood === 'good' ? 'Bien' : 
-                                          selectedDayMood.mood === 'okay' ? 'Normal' : 
-                                          selectedDayMood.mood === 'sad' ? 'Triste' : 'Mal')}
+              {selectedDayEvents.length} {selectedDayEvents.length !== 1 ? t('events') : t('event')}
+              {selectedDayMood && ' • ' + getMoodLabelForCalendar(selectedDayMood.mood)}
             </span>
           )}
         </div>
 
-        {/* Afficher l'humeur du jour */}
         {selectedDayMood && (
           <div className="mb-4 p-3 bg-white rounded-lg">
             <div className="flex items-center gap-3">
               <span className="text-4xl">{getMoodDisplay(selectedDayMood.mood)?.emoji}</span>
               <div className="flex-1">
                 <div className="font-semibold text-gray-800">
-                  Humeur : {selectedDayMood.mood === 'amazing' ? 'Super Bien' : 
-                           selectedDayMood.mood === 'good' ? 'Bien' : 
-                           selectedDayMood.mood === 'okay' ? 'Normal' : 
-                           selectedDayMood.mood === 'sad' ? 'Triste' : 'Mal'}
+                  {t('mood')} : {getMoodLabelForCalendar(selectedDayMood.mood)}
                 </div>
                 {selectedDayMood.note && (
                   <p className="text-sm text-gray-600 mt-1">{selectedDayMood.note}</p>
@@ -261,10 +281,11 @@ const CalendarWidget = () => {
           </div>
         )}
 
-        {/* Afficher les événements */}
         {selectedDayEvents.length > 0 ? (
           <div className="space-y-2">
-            <div className="font-semibold text-amber-900 text-sm">Événements :</div>
+            <div className="font-semibold text-amber-900 text-sm">
+              {language === 'fr' ? 'Événements :' : 'Events:'}
+            </div>
             {selectedDayEvents.map(event => (
               <div 
                 key={event.id}
@@ -284,37 +305,36 @@ const CalendarWidget = () => {
             ))}
           </div>
         ) : !selectedDayMood && (
-          <div className="text-amber-700">No events or mood recorded</div>
+          <div className="text-amber-700">{t('noEventsOrMood')}</div>
         )}
       </div>
 
-      {/* Légende */}
       <div className="mt-4 pt-4 border-t border-amber-200">
-        <div className="text-xs text-amber-700 font-semibold mb-2">Légende :</div>
+        <div className="text-xs text-amber-700 font-semibold mb-2">{t('legend')}:</div>
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-green-400 rounded"></div>
-            <span className="text-amber-700">Super Bien</span>
+            <span className="text-amber-700">{t('amazing')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-blue-400 rounded"></div>
-            <span className="text-amber-700">Bien</span>
+            <span className="text-amber-700">{t('good')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-yellow-400 rounded"></div>
-            <span className="text-amber-700">Normal</span>
+            <span className="text-amber-700">{t('okay')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-orange-400 rounded"></div>
-            <span className="text-amber-700">Triste</span>
+            <span className="text-amber-700">{t('sad')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-red-400 rounded"></div>
-            <span className="text-amber-700">Mal</span>
+            <span className="text-amber-700">{t('difficult')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-            <span className="text-amber-700">Événement</span>
+            <span className="text-amber-700">{t('event')}</span>
           </div>
         </div>
       </div>

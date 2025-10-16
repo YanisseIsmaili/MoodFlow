@@ -1,9 +1,21 @@
 // src/App.jsx
-import React from 'react';
-import Dashboard from './page/Dashboard';
+import React, { useState } from 'react';
+import Dashboard from './pages/Dashboard';
+import SettingsModal from './components/modals/SettingsModal';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 function App() {
-  return <Dashboard />;
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  return (
+    <LanguageProvider>
+      <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
+    </LanguageProvider>
+  );
 }
 
 export default App;

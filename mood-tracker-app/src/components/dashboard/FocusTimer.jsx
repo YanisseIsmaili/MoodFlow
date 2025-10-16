@@ -3,8 +3,10 @@ import React from 'react';
 import { Clock, Play, Pause, SkipForward, Coffee, Sunrise, RotateCcw } from 'lucide-react';
 import { useTimer } from '../../hooks/useTimer';
 import { formatTime } from '../../utils/dateUtils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const FocusTimer = () => {
+  const { t } = useLanguage();
   const { 
     time, 
     isRunning, 
@@ -23,13 +25,13 @@ const FocusTimer = () => {
   const getModeInfo = () => {
     switch(mode) {
       case 'focus':
-        return { name: 'Focus Time', emoji: '🎯', color: 'from-orange-400 to-amber-500' };
+        return { name: t('focusTime'), emoji: '🎯', color: 'from-orange-400 to-amber-500' };
       case 'short-break':
-        return { name: 'Short Break', emoji: '☕', color: 'from-blue-400 to-blue-500' };
+        return { name: t('shortBreak'), emoji: '☕', color: 'from-blue-400 to-blue-500' };
       case 'long-break':
-        return { name: 'Long Break', emoji: '🌅', color: 'from-purple-400 to-purple-500' };
+        return { name: t('longBreak'), emoji: '🌅', color: 'from-purple-400 to-purple-500' };
       default:
-        return { name: 'Focus Time', emoji: '🎯', color: 'from-orange-400 to-amber-500' };
+        return { name: t('focusTime'), emoji: '🎯', color: 'from-orange-400 to-amber-500' };
     }
   };
 
@@ -41,14 +43,14 @@ const FocusTimer = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 text-amber-700">
           <Clock className="w-5 h-5" />
-          <span className="font-semibold">Pomodoro Timer</span>
+          <span className="font-semibold">{t('pomodoroTimer')}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-amber-700 text-sm">Sessions: {sessions}</span>
+          <span className="text-amber-700 text-sm">{t('sessions')}: {sessions}</span>
           <button
             onClick={resetSessions}
             className="text-amber-600 hover:text-amber-800"
-            title="Reset sessions"
+            title={t('resetSessions')}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -65,7 +67,7 @@ const FocusTimer = () => {
               : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
           }`}
         >
-          🎯 Focus
+          🎯 {t('focus')}
         </button>
         <button
           onClick={startShortBreak}
@@ -75,7 +77,7 @@ const FocusTimer = () => {
               : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
           }`}
         >
-          ☕ Short
+          ☕ {t('short')}
         </button>
         <button
           onClick={startLongBreak}
@@ -85,7 +87,7 @@ const FocusTimer = () => {
               : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
           }`}
         >
-          🌅 Long
+          🌅 {t('long')}
         </button>
       </div>
 
@@ -126,8 +128,8 @@ const FocusTimer = () => {
 
       <div className="flex items-center justify-between p-4 bg-amber-100 rounded-2xl mb-4">
         <div>
-          <div className="font-semibold text-amber-900">Auto-start next session</div>
-          <div className="text-sm text-amber-600">Automatically begin after completion</div>
+          <div className="font-semibold text-amber-900">{t('autoStartNext')}</div>
+          <div className="text-sm text-amber-600">{t('autoStartDesc')}</div>
         </div>
         <button
           onClick={toggleAutoStart}
@@ -143,11 +145,11 @@ const FocusTimer = () => {
 
       <div className="grid grid-cols-2 gap-4 text-center text-sm text-amber-700">
         <div className="p-2 bg-amber-100/50 rounded-lg">
-          <div className="font-semibold">Completed</div>
+          <div className="font-semibold">{t('completed')}</div>
           <div className="text-lg font-bold text-amber-900">{sessions}</div>
         </div>
         <div className="p-2 bg-amber-100/50 rounded-lg">
-          <div className="font-semibold">Until long break</div>
+          <div className="font-semibold">{t('untilLongBreak')}</div>
           <div className="text-lg font-bold text-amber-900">{untilLongBreak}</div>
         </div>
       </div>
