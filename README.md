@@ -474,7 +474,6 @@ Build → Test → Security Scan → Deploy
 **Équipe MoodFlow+**  
 🎓 *Hackathon M1 Dev, Data, Infra — Ynov Montpellier*
 
-📧 Email : [votre-email]  
 🐙 GitHub : [YanisseIsmaili/MoodFlow](https://github.com/YanisseIsmaili/MoodFlow)
 
 ---
