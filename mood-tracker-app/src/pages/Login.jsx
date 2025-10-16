@@ -1,14 +1,29 @@
 import React, { useState } from "react";
-import { LogIn, Mail, Lock, Sun, Coffee } from "lucide-react";
+import { LogIn, Sun, Coffee, Loader, User, Lock } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic here
-        alert(`Email: ${email}\nPassword: ${password}`);
+        setIsLoading(true);
+        setError("");
+
+        try {
+            await login({ username, password });
+            navigate("/dashboard");
+        } catch (error) {
+            setError(error.message || "Erreur de connexion. Vérifiez vos identifiants.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -24,18 +39,24 @@ const Login = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                        <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl">
+                            {error}
+                        </div>
+                    )}
+
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-amber-900">
-                            <Mail className="w-4 h-4 inline mr-2" />
-                            Email
+                            <User className="w-4 h-4 inline mr-2" />
+                            Nom d'utilisateur
                         </label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
+                            type="text"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
                             required
                             className="w-full px-4 py-3 bg-white/60 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all placeholder-amber-500"
-                            placeholder="votre@email.com"
+                            placeholder="votre_nom_utilisateur"
                         />
                     </div>
 
@@ -66,19 +87,29 @@ const Login = () => {
 
                     <button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-6 rounded-xl font-medium hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-6 rounded-xl font-medium hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
-                        <LogIn className="w-5 h-5" />
-                        Se connecter
+                        {isLoading ? (
+                            <>
+                                <Loader className="w-5 h-5 animate-spin" />
+                                Connexion...
+                            </>
+                        ) : (
+                            <>
+                                <LogIn className="w-5 h-5" />
+                                Se connecter
+                            </>
+                        )}
                     </button>
                 </form>
 
                 <div className="mt-8 text-center">
                     <p className="text-amber-700">
                         Pas encore de compte ?{" "}
-                        <a href="/register" className="text-amber-600 hover:text-amber-800 font-medium transition-colors">
+                        <Link to="/register" className="text-amber-600 hover:text-amber-800 font-medium transition-colors">
                             S'inscrire
-                        </a>
+                        </Link>
                     </p>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 // src/page/Dashboard.jsx
 import React, { useRef, useState } from 'react';
-import { useDashboard } from '../context/DashboardContext';
+import { useDashboard } from '../contexts/DashboardContext';
 import Header from '../components/layout/Header';
 import DraggableWidget from '../components/dashboard/DraggableWidget';
 import WidgetSidebar from '../components/dashboard/WidgetSidebar';

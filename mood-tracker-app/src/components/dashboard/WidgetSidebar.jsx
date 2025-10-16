@@ -1,6 +1,6 @@
 // src/components/dashboard/WidgetSidebar.jsx
 import React, { useState } from 'react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useDashboard } from '../../contexts/DashboardContext';
 
 const WIDGET_INFO = {
   'mood-selector': { name: 'Comment te sens-tu ?', icon: '💜' },

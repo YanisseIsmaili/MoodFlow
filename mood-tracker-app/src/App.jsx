@@ -2,16 +2,16 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import Login from './page/Login';
+import Login from './pages/Login';
 import Register from './pages/Register';
 import SettingsModal from './components/modals/SettingsModal';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { DashboardProvider } from './context/DashboardContext';
+import { DashboardProvider } from './contexts/DashboardContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function AppContent() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { isAuthenticated, isLoading, login } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -21,36 +21,51 @@ function AppContent() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Login onLogin={login} />;
-  }
-  
   return (
     <LanguageProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={
-            <>
-              <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
-              <SettingsModal 
-                isOpen={isSettingsOpen} 
-                onClose={() => setIsSettingsOpen(false)} 
-              />
-            </>
-          } />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
       <DashboardProvider>
-        <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
-        <SettingsModal 
-          isOpen={isSettingsOpen} 
-          onClose={() => setIsSettingsOpen(false)} 
-        />
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                isAuthenticated ? (
+                  <>
+                    <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
+                    <SettingsModal 
+                      isOpen={isSettingsOpen} 
+                      onClose={() => setIsSettingsOpen(false)} 
+                    />
+                  </>
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              } 
+            />
+            <Route 
+              path="/" 
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              } 
+            />
+          </Routes>
+        </Router>
       </DashboardProvider>
     </LanguageProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
