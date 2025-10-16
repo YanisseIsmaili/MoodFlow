@@ -22,49 +22,49 @@ function AppContent() {
   }
 
   return (
-    <LanguageProvider>
-      <DashboardProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                isAuthenticated ? (
-                  <>
-                    <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
-                    <SettingsModal 
-                      isOpen={isSettingsOpen} 
-                      onClose={() => setIsSettingsOpen(false)} 
-                    />
-                  </>
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              } 
-            />
-            <Route 
-              path="/" 
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              } 
-            />
-          </Routes>
-        </Router>
-      </DashboardProvider>
-    </LanguageProvider>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route 
+          path="/dashboard" 
+          element={
+            isAuthenticated ? (
+              <>
+                <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
+                <SettingsModal 
+                  isOpen={isSettingsOpen} 
+                  onClose={() => setIsSettingsOpen(false)} 
+                />
+              </>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+      </Routes>
+    </Router>
   );
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <LanguageProvider>
+        <DashboardProvider>
+          <AppContent />
+        </DashboardProvider>
+      </LanguageProvider>
     </AuthProvider>
   );
 }
