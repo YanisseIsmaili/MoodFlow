@@ -2,7 +2,7 @@
 import React from 'react';
 import { Calendar, Target, Settings, Sun, Moon, Coffee } from 'lucide-react';
 
-const Header = () => {
+const Header = ({ onOpenSettings }) => {
   return (
     <div className="max-w-7xl mx-auto mb-8">
       <div className="flex justify-between items-center">
@@ -24,7 +24,10 @@ const Header = () => {
           <button className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg">
             <Target className="w-5 h-5 text-amber-700" />
           </button>
-          <button className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg">
+          <button 
+            onClick={onOpenSettings}
+            className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg"
+          >
             <Settings className="w-5 h-5 text-amber-700" />
           </button>
         </div>
@@ -33,4 +36,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

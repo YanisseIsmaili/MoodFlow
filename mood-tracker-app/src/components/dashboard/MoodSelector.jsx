@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Smile, Meh, Frown, Heart, Zap, Save, X } from 'lucide-react';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const MoodSelector = () => {
+  const { t } = useLanguage();
   const [todayMood, setTodayMood] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [moodNote, setMoodNote] = useState('');
