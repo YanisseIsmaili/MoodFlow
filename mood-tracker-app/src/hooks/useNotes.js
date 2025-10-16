@@ -13,7 +13,7 @@ export const useNotes = (initialNotes = []) => {
       text,
       color: NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)],
       x: Math.random() * 400,
-      y: Math.random() * 100
+      y: Math.random() * 200
     };
 
     setNotes([...notes, newNote]);
