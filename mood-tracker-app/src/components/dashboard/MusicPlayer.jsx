@@ -1,8 +1,10 @@
 // src/components/dashboard/MusicPlayer.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Music, Play, Pause, SkipBack, SkipForward, Heart, Volume2, VolumeX, Zap, List } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const MusicPlayer = () => {
+  const { t } = useLanguage();
   const playerRef = useRef(null);
   const [player, setPlayer] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -20,7 +22,7 @@ const MusicPlayer = () => {
   const playlists = [
     {
       name: 'My Custom Mix',
-      playlistId: 'RDQMwbpzXXO29_k', // Votre playlist
+      playlistId: 'RDQMwbpzXXO29_k',
       thumbnail: 'https://img.youtube.com/vi/XDpoBc8t6gE/mqdefault.jpg'
     },
     {
@@ -35,7 +37,6 @@ const MusicPlayer = () => {
     }
   ];
 
-  // Vidéos individuelles
   const singleVideos = [
     {
       title: 'Lofi Study Session',
@@ -67,7 +68,6 @@ const MusicPlayer = () => {
   const currentPlaylist = playlists[selectedPlaylist];
   const currentSong = singleVideos[currentTrack];
 
-  // Charger l'API YouTube
   useEffect(() => {
     if (window.YT && window.YT.Player) {
       initPlayer();
@@ -132,7 +132,6 @@ const MusicPlayer = () => {
     }
   };
 
-  // Mettre à jour le temps
   useEffect(() => {
     if (!player || !isPlaying) return;
 
@@ -148,7 +147,6 @@ const MusicPlayer = () => {
     return () => clearInterval(interval);
   }, [player, isPlaying]);
 
-  // Changer de mode (playlist vs vidéos individuelles)
   const switchMode = (toPlaylist) => {
     setUsePlaylist(toPlaylist);
     setIsReady(false);
@@ -158,7 +156,6 @@ const MusicPlayer = () => {
     setTimeout(() => initPlayer(), 100);
   };
 
-  // Changer de playlist
   const switchPlaylist = (index) => {
     setSelectedPlaylist(index);
     if (player && player.loadPlaylist) {
@@ -170,7 +167,6 @@ const MusicPlayer = () => {
     }
   };
 
-  // Changer de vidéo individuelle
   useEffect(() => {
     if (!usePlaylist && player && player.loadVideoById && isReady) {
       player.loadVideoById(currentSong.videoId);
@@ -183,7 +179,6 @@ const MusicPlayer = () => {
     }
   }, [currentTrack, player, usePlaylist, isReady]);
 
-  // Gérer le volume
   useEffect(() => {
     if (player && player.setVolume) {
       player.setVolume(isMuted ? 0 : volume);
@@ -253,11 +248,11 @@ const MusicPlayer = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-amber-700">
           <Music className="w-5 h-5" />
-          <span className="font-semibold">September Vibes</span>
+          <span className="font-semibold">{t('septemberVibes')}</span>
         </div>
         <div className="flex items-center gap-2">
           {!isReady && (
-            <span className="text-xs text-amber-600 animate-pulse">Loading...</span>
+            <span className="text-xs text-amber-600 animate-pulse">{t('loading')}</span>
           )}
           <button 
             onClick={() => setShowPlaylistSelector(!showPlaylistSelector)}
@@ -268,10 +263,9 @@ const MusicPlayer = () => {
         </div>
       </div>
 
-      {/* Playlist Selector */}
       {showPlaylistSelector && (
         <div className="mb-4 p-4 bg-white rounded-xl border-2 border-amber-300 space-y-2">
-          <div className="font-bold text-amber-900 mb-2">Select Mode:</div>
+          <div className="font-bold text-amber-900 mb-2">{t('selectMode')}</div>
           
           <div className="flex gap-2 mb-3">
             <button
@@ -282,7 +276,7 @@ const MusicPlayer = () => {
                   : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
               }`}
             >
-              🎵 Single Tracks
+              🎵 {t('singleTracks')}
             </button>
             <button
               onClick={() => switchMode(true)}
@@ -292,13 +286,13 @@ const MusicPlayer = () => {
                   : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
               }`}
             >
-              📋 Playlists
+              📋 {t('playlists')}
             </button>
           </div>
 
           {usePlaylist && (
             <div className="space-y-2">
-              <div className="font-semibold text-amber-900 text-sm">Available Playlists:</div>
+              <div className="font-semibold text-amber-900 text-sm">{t('availablePlaylists')}</div>
               {playlists.map((pl, index) => (
                 <button
                   key={index}
@@ -317,7 +311,6 @@ const MusicPlayer = () => {
         </div>
       )}
 
-      {/* Track info */}
       <div className="bg-gradient-to-r from-orange-400 to-amber-400 rounded-2xl p-4 mb-4 overflow-hidden">
         <div className="flex items-center gap-3">
           <div className="relative w-16 h-16 flex-shrink-0">
@@ -336,7 +329,7 @@ const MusicPlayer = () => {
             <div className="font-bold truncate">{displayInfo.title}</div>
             <div className="text-sm opacity-90 truncate">{displayInfo.artist}</div>
             {usePlaylist && (
-              <div className="text-xs opacity-75 mt-1">🔄 Playlist Mode</div>
+              <div className="text-xs opacity-75 mt-1">🔄 {t('playlistMode')}</div>
             )}
           </div>
           {!usePlaylist && (
