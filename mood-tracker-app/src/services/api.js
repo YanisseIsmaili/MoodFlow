@@ -4,6 +4,12 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
+    this.onSessionExpired = null; // Callback pour notifier l'expiration de session
+  }
+
+  // Méthode pour définir un callback d'expiration de session
+  setSessionExpiredHandler(callback) {
+    this.onSessionExpired = callback;
   }
 
   async makeRequest(endpoint, options = {}) {
@@ -32,6 +38,15 @@ class ApiService {
 
     try {
       const response = await fetch(url, finalOptions);
+      
+      // Gérer l'expiration du token JWT
+      if (response.status === 401) {
+        this.clearAuthData();
+        if (this.onSessionExpired) {
+          this.onSessionExpired();
+        }
+        throw new Error('Session expirée. Veuillez vous reconnecter.');
+      }
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -76,8 +91,7 @@ class ApiService {
   }
 
   async logout() {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
+    this.clearAuthData();
   }
 
   // Méthodes pour les humeurs
@@ -90,7 +104,30 @@ class ApiService {
   }
 
   async getMoodsByUserAndMonth(username, date) {
-    return this.makeRequest(`/api/v1/moods/${username}?date=${date}`);
+    const token = localStorage.getItem('auth_token');
+    
+    try {
+      // Essayer d'abord l'endpoint avec JWT
+      const result = await this.makeRequest(`/api/v1/moods/${username}?date=${date}`);
+      // S'assurer que nous retournons toujours un tableau
+      return Array.isArray(result) ? result : (result.moods || []);
+    } catch (error) {
+      // Fallback: utiliser l'endpoint sans JWT et filtrer côté frontend
+      const allMoods = await this.makeRequest(`/api/v1/moods/user/${username}`);
+      
+      // Filtrer pour le mois demandé
+      const targetDate = new Date(date);
+      const year = targetDate.getFullYear();
+      const month = targetDate.getMonth();
+      
+      const moodsArray = Array.isArray(allMoods) ? allMoods : (allMoods.moods || []);
+      const filtered = moodsArray.filter(mood => {
+        const moodDate = new Date(mood.date);
+        return moodDate.getFullYear() === year && moodDate.getMonth() === month;
+      });
+      
+      return filtered;
+    }
   }
 
   async createMood(moodData) {
@@ -140,6 +177,11 @@ class ApiService {
     localStorage.setItem('user_data', JSON.stringify(user));
   }
 
+  clearAuthData() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+  }
+
   getAuthData() {
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
@@ -147,6 +189,12 @@ class ApiService {
       token,
       user: userData ? JSON.parse(userData) : null
     };
+  }
+
+  // Vérifier si l'utilisateur est authentifié avec un token valide
+  isAuthenticated() {
+    const token = localStorage.getItem('auth_token');
+    return !!token;
   }
 }
 

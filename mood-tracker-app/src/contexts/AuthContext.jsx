@@ -1,6 +1,7 @@
 // src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuthService } from '../hooks/useAuthService';
+import apiService from '../services/api';
 
 const AuthContext = createContext();
 
@@ -10,6 +11,11 @@ export const AuthProvider = ({ children }) => {
   const authService = useAuthService();
 
   useEffect(() => {
+    // Configurer le gestionnaire d'expiration de session
+    apiService.setSessionExpiredHandler(() => {
+      setUser(null);
+    });
+
     // Vérifier si l'utilisateur est déjà connecté
     if (authService.isAuthenticated()) {
       const userData = authService.getCurrentUser();
@@ -25,6 +31,10 @@ export const AuthProvider = ({ children }) => {
       setUser(response.user);
       return response;
     } catch (error) {
+      // Si l'erreur indique une session expirée, nettoyer l'état utilisateur
+      if (error.message.includes('Session expirée')) {
+        setUser(null);
+      }
       throw error;
     }
   };
