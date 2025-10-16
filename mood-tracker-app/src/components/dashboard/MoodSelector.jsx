@@ -162,7 +162,7 @@ const MoodSelector = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 rounded-3xl p-6 shadow-2xl border-2 border-purple-200">
+    <div className="h-full bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 rounded-3xl p-6 shadow-2xl border-2 border-purple-200">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-2xl font-bold text-purple-900 flex items-center gap-2">

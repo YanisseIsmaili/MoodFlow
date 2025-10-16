@@ -6,10 +6,11 @@ import Login from './page/Login';
 import Register from './pages/Register';
 import SettingsModal from './components/modals/SettingsModal';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { DashboardProvider } from './context/DashboardContext';
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
+  
   return (
     <LanguageProvider>
       <Router>
@@ -28,6 +29,13 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
+      <DashboardProvider>
+        <Dashboard onOpenSettings={() => setIsSettingsOpen(true)} />
+        <SettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+        />
+      </DashboardProvider>
     </LanguageProvider>
   );
 }
