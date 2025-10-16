@@ -1,10 +1,11 @@
 // src/components/dashboard/CalendarWidget.jsx
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, X } from 'lucide-react';
+import { Calendar, Plus, X, Edit, Lock } from 'lucide-react';
 import { getDaysInMonth, getFirstDayOfMonth } from '../../utils/dateUtils';
 import { MONTH_NAMES, DAY_NAMES } from '../../constants';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
 import { useLanguage } from '../../contexts/LanguageContext';
+import MoodEditModal from '../modals/MoodEditModal';
 
 const CalendarWidget = () => {
   const { t, language } = useLanguage();
@@ -15,12 +16,23 @@ const CalendarWidget = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState('');
   const [newEventTime, setNewEventTime] = useState('10:00');
+  const [showMoodEditModal, setShowMoodEditModal] = useState(false);
+  const [editingDate, setEditingDate] = useState(null);
 
   const moodHistory = getFromStorage('moodHistory', []);
 
   useEffect(() => {
     saveToStorage('calendarEvents', events);
   }, [events]);
+
+  // Fonction pour vérifier si une date est dans le futur
+  const isDateInFuture = (day) => {
+    const selectedDate = new Date(selectedYear, selectedMonth, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    return selectedDate > today;
+  };
 
   const days = getDaysInMonth(selectedMonth, selectedYear);
   const firstDay = getFirstDayOfMonth(selectedMonth, selectedYear);
@@ -116,6 +128,29 @@ const CalendarWidget = () => {
     }));
   };
 
+  // Gestion du double-clic pour éditer une humeur
+  const handleDayDoubleClick = (day) => {
+    // Empêcher l'édition des jours futurs
+    if (isDateInFuture(day)) {
+      alert(
+        language === 'fr' 
+          ? '⏰ Vous ne pouvez pas modifier une date future !' 
+          : '⏰ You cannot edit a future date!'
+      );
+      return;
+    }
+    
+    const date = new Date(selectedYear, selectedMonth, day);
+    const dateStr = date.toDateString();
+    setEditingDate(dateStr);
+    setShowMoodEditModal(true);
+  };
+
+  // Gestion du simple clic
+  const handleDayClick = (day) => {
+    setSelectedDay(day);
+  };
+
   const selectedDayEvents = getDayEvents(selectedDay);
   const selectedDayMood = getMoodForDay(selectedDay);
 
@@ -153,12 +188,33 @@ const CalendarWidget = () => {
           </button>
         </div>
         <button 
-          onClick={() => setShowAddEvent(true)}
+          onClick={() => {
+            if (isDateInFuture(selectedDay)) {
+              alert(
+                language === 'fr' 
+                  ? '⏰ Vous ne pouvez pas ajouter un événement à une date future !' 
+                  : '⏰ You cannot add an event to a future date!'
+              );
+              return;
+            }
+            setShowAddEvent(true);
+          }}
           className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-4 py-2 rounded-xl font-semibold hover:scale-105 transition-transform shadow-md flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           {t('addEvent')}
         </button>
+      </div>
+
+      {/* Info tooltip */}
+      <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
+        <p className="text-sm text-blue-800 flex items-center gap-2">
+          <Edit className="w-4 h-4" />
+          {language === 'fr' 
+            ? '💡 Double-cliquez sur un jour passé ou présent pour modifier ou ajouter une humeur'
+            : '💡 Double-click on a past or present day to edit or add a mood'
+          }
+        </p>
       </div>
 
       {showAddEvent && (
@@ -209,26 +265,52 @@ const CalendarWidget = () => {
           const hasEvents = getDayEvents(day).length > 0;
           const dayMood = getMoodForDay(day);
           const moodDisplay = dayMood ? getMoodDisplay(dayMood.mood) : null;
+          const isFuture = isDateInFuture(day);
           
           return (
             <button
               key={day}
-              onClick={() => setSelectedDay(day)}
-              className={`aspect-square flex flex-col items-center justify-center rounded-xl cursor-pointer transition-all relative ${
-                day === selectedDay
-                  ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white font-bold shadow-lg scale-110' 
+              onClick={() => handleDayClick(day)}
+              onDoubleClick={() => handleDayDoubleClick(day)}
+              disabled={isFuture}
+              className={`group aspect-square flex flex-col items-center justify-center rounded-xl transition-all relative ${
+                isFuture
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                  : day === selectedDay
+                  ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white font-bold shadow-lg scale-110 ring-2 ring-orange-600' 
                   : moodDisplay
-                  ? `${moodDisplay.color} text-white hover:scale-105`
-                  : 'bg-amber-100/50 hover:bg-amber-200 text-amber-900'
+                  ? `${moodDisplay.color} text-white hover:scale-105 hover:ring-2 hover:ring-offset-1 hover:shadow-xl cursor-pointer`
+                  : 'bg-amber-100/50 hover:bg-amber-200 text-amber-900 hover:scale-105 hover:shadow-md cursor-pointer'
               }`}
+              title={
+                isFuture 
+                  ? (language === 'fr' ? 'Date future - non modifiable' : 'Future date - cannot edit')
+                  : (language === 'fr' ? 'Double-cliquez pour modifier' : 'Double-click to edit')
+              }
             >
-              <span className={moodDisplay ? 'text-lg font-bold' : ''}>{day}</span>
+              <span className={moodDisplay && !isFuture ? 'text-lg font-bold' : ''}>{day}</span>
               
-              {moodDisplay && day !== selectedDay && (
+              {moodDisplay && day !== selectedDay && !isFuture && (
                 <span className="text-xl mt-1">{moodDisplay.emoji}</span>
               )}
               
-              {hasEvents && (
+              {/* Icône d'édition au survol - cachée pour les jours futurs */}
+              {!isFuture && (
+                <div className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                  day === selectedDay ? 'text-white' : 'text-amber-700'
+                }`}>
+                  <Edit className="w-3 h-3 drop-shadow" />
+                </div>
+              )}
+              
+              {/* Icône de cadenas pour les jours futurs */}
+              {isFuture && (
+                <div className="absolute top-1 right-1 text-gray-400">
+                  <Lock className="w-3 h-3" />
+                </div>
+              )}
+              
+              {hasEvents && !isFuture && (
                 <div className="absolute bottom-1 flex gap-0.5">
                   {getDayEvents(day).slice(0, 3).map((_, idx) => (
                     <div key={idx} className="w-1 h-1 bg-blue-600 rounded-full"></div>
@@ -246,10 +328,21 @@ const CalendarWidget = () => {
             {monthNames[selectedMonth]} {selectedDay}, {selectedYear}
           </div>
           {(selectedDayEvents.length > 0 || selectedDayMood) && (
-            <span className="text-xs bg-amber-300 text-amber-900 px-2 py-1 rounded-full">
-              {selectedDayEvents.length} {selectedDayEvents.length !== 1 ? t('events') : t('event')}
-              {selectedDayMood && ' • ' + getMoodLabelForCalendar(selectedDayMood.mood)}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-amber-300 text-amber-900 px-2 py-1 rounded-full">
+                {selectedDayEvents.length} {selectedDayEvents.length !== 1 ? t('events') : t('event')}
+                {selectedDayMood && ' • ' + getMoodLabelForCalendar(selectedDayMood.mood)}
+              </span>
+              {!isDateInFuture(selectedDay) && (
+                <button
+                  onClick={() => handleDayDoubleClick(selectedDay)}
+                  className="text-amber-600 hover:text-amber-800 transition-colors"
+                  title={language === 'fr' ? 'Modifier l\'humeur' : 'Edit mood'}
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -305,7 +398,29 @@ const CalendarWidget = () => {
             ))}
           </div>
         ) : !selectedDayMood && (
-          <div className="text-amber-700">{t('noEventsOrMood')}</div>
+          <div className="text-amber-700 text-center py-4">
+            {isDateInFuture(selectedDay) ? (
+              <>
+                <Lock className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                <p>{language === 'fr' ? 'Date future' : 'Future date'}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {language === 'fr' 
+                    ? 'Vous pourrez ajouter une humeur ce jour-là' 
+                    : 'You can add a mood on this day'}
+                </p>
+              </>
+            ) : (
+              <>
+                <p>{t('noEventsOrMood')}</p>
+                <button
+                  onClick={() => handleDayDoubleClick(selectedDay)}
+                  className="mt-2 text-sm text-amber-600 hover:text-amber-800 underline"
+                >
+                  {language === 'fr' ? 'Ajouter une humeur' : 'Add a mood'}
+                </button>
+              </>
+            )}
+          </div>
         )}
       </div>
 
@@ -336,8 +451,22 @@ const CalendarWidget = () => {
             <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
             <span className="text-amber-700">{t('event')}</span>
           </div>
+          <div className="flex items-center gap-1">
+            <Lock className="w-3 h-3 text-gray-400" />
+            <span className="text-amber-700">{language === 'fr' ? 'Futur' : 'Future'}</span>
+          </div>
         </div>
       </div>
+
+      {/* Modal d'édition de l'humeur */}
+      <MoodEditModal
+        isOpen={showMoodEditModal}
+        onClose={() => {
+          setShowMoodEditModal(false);
+          setEditingDate(null);
+        }}
+        date={editingDate}
+      />
     </div>
   );
 };
