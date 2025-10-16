@@ -14,10 +14,11 @@ import MoodBoard from '../components/dashboard/MoodBoard';
 import CalendarWidget from '../components/dashboard/CalendarWidget';
 
 const Dashboard = ({ onOpenSettings }) => {
-  const { widgets, editMode, WIDGET_TYPES, toggleWidget } = useDashboard();
+  const { widgets, editMode, WIDGET_TYPES, toggleWidget, setSidebarOpen } = useDashboard();
   const moodBoardRef = useRef(null);
   const calendarRef = useRef(null);
   const [dragOverDashboard, setDragOverDashboard] = useState(false);
+  const longPressTimer = useRef(null);
 
   const scrollToMoodBoard = () => {
     moodBoardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -30,6 +31,33 @@ const Dashboard = ({ onOpenSettings }) => {
   const visibleWidgets = widgets
     .filter(w => w.visible)
     .sort((a, b) => a.order - b.order);
+
+  // Long press handlers
+  const handleTouchStart = (e) => {
+    if (e.target.closest('.no-long-press')) return;
+    longPressTimer.current = setTimeout(() => {
+      setSidebarOpen(true);
+    }, 800);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+  };
+
+  const handleMouseDown = (e) => {
+    if (e.target.closest('.no-long-press')) return;
+    longPressTimer.current = setTimeout(() => {
+      setSidebarOpen(true);
+    }, 800);
+  };
+
+  const handleMouseUp = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+  };
 
   const handleDragOver = (e) => {
     if (!editMode) return;
@@ -93,11 +121,15 @@ const Dashboard = ({ onOpenSettings }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       <Header onOpenSettings={onOpenSettings} />
       
       {editMode && (
-        <div className="max-w-7xl mx-auto mb-4 p-4 bg-blue-500 text-white rounded-lg text-center font-semibold">
+        <div className="max-w-7xl mx-auto mb-4 p-4 bg-blue-500 text-white rounded-lg text-center font-semibold no-long-press">
           <p className="text-lg">✏️ Mode Édition Actif</p>
           <p className="text-sm mt-1">
             Glissez carte sur carte pour réorganiser | Glissez vers menu → pour masquer
@@ -106,13 +138,13 @@ const Dashboard = ({ onOpenSettings }) => {
       )}
 
       {editMode && dragOverDashboard && (
-        <div className="max-w-7xl mx-auto mb-4 p-8 bg-green-100 border-4 border-dashed border-green-500 rounded-lg text-center animate-pulse">
+        <div className="max-w-7xl mx-auto mb-4 p-8 bg-green-100 border-4 border-dashed border-green-500 rounded-lg text-center animate-pulse no-long-press">
           <p className="text-2xl font-bold text-green-700">⬇️ Déposez ici pour afficher</p>
         </div>
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-fr">
           {visibleWidgets.map((widget) => (
             <div key={widget.id} className={`${getWidgetClass(widget.id)} flex`}>
               <DraggableWidget id={widget.id} className="w-full">
@@ -126,11 +158,15 @@ const Dashboard = ({ onOpenSettings }) => {
           <div className="text-center py-20">
             <p className="text-6xl mb-4">📦</p>
             <p className="text-2xl font-semibold text-gray-700 mb-2">Aucune carte visible</p>
-            <p className="text-gray-600">
-              {editMode 
-                ? "Glissez des cartes depuis le menu pour les afficher" 
-                : "Cliquez sur l'espace vide d'une carte pour ouvrir le menu"}
+            <p className="text-gray-600 mb-4">
+              Maintenez longtemps appuyé sur l'écran pour ouvrir le menu
             </p>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="no-long-press bg-gradient-to-r from-orange-400 to-amber-500 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg"
+            >
+              🎯 Ouvrir le menu des widgets
+            </button>
           </div>
         )}
       </div>
