@@ -221,10 +221,10 @@ const CalendarWidget = () => {
           {(selectedDayEvents.length > 0 || selectedDayMood) && (
             <span className="text-xs bg-amber-300 text-amber-900 px-2 py-1 rounded-full">
               {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? 's' : ''}
-              {selectedDayMood && ' • ' + (selectedDayMood.mood === 'amazing' ? 'Incroyable' : 
+              {selectedDayMood && ' • ' + (selectedDayMood.mood === 'amazing' ? 'Super Bien' : 
                                           selectedDayMood.mood === 'good' ? 'Bien' : 
-                                          selectedDayMood.mood === 'okay' ? 'Correct' : 
-                                          selectedDayMood.mood === 'sad' ? 'Triste' : 'Difficile')}
+                                          selectedDayMood.mood === 'okay' ? 'Normal' : 
+                                          selectedDayMood.mood === 'sad' ? 'Triste' : 'Mal')}
             </span>
           )}
         </div>
@@ -236,10 +236,10 @@ const CalendarWidget = () => {
               <span className="text-4xl">{getMoodDisplay(selectedDayMood.mood)?.emoji}</span>
               <div className="flex-1">
                 <div className="font-semibold text-gray-800">
-                  Humeur : {selectedDayMood.mood === 'amazing' ? 'Incroyable' : 
+                  Humeur : {selectedDayMood.mood === 'amazing' ? 'Super Bien' : 
                            selectedDayMood.mood === 'good' ? 'Bien' : 
-                           selectedDayMood.mood === 'okay' ? 'Correct' : 
-                           selectedDayMood.mood === 'sad' ? 'Triste' : 'Difficile'}
+                           selectedDayMood.mood === 'okay' ? 'Normal' : 
+                           selectedDayMood.mood === 'sad' ? 'Triste' : 'Mal'}
                 </div>
                 {selectedDayMood.note && (
                   <p className="text-sm text-gray-600 mt-1">{selectedDayMood.note}</p>
@@ -294,7 +294,7 @@ const CalendarWidget = () => {
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-green-400 rounded"></div>
-            <span className="text-amber-700">Incroyable</span>
+            <span className="text-amber-700">Super Bien</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-blue-400 rounded"></div>
@@ -302,7 +302,7 @@ const CalendarWidget = () => {
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-yellow-400 rounded"></div>
-            <span className="text-amber-700">Correct</span>
+            <span className="text-amber-700">Normal</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-orange-400 rounded"></div>
@@ -310,7 +310,7 @@ const CalendarWidget = () => {
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-red-400 rounded"></div>
-            <span className="text-amber-700">Difficile</span>
+            <span className="text-amber-700">Mal</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
