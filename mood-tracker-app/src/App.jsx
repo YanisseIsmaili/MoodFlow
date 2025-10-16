@@ -7,9 +7,23 @@ import Register from './pages/Register';
 import SettingsModal from './components/modals/SettingsModal';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DashboardProvider } from './context/DashboardContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-function App() {
+function AppContent() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { isAuthenticated, isLoading, login } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 flex items-center justify-center">
+        <div className="text-amber-900 text-xl">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Login onLogin={login} />;
+  }
   
   return (
     <LanguageProvider>

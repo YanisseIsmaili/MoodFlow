@@ -7,8 +7,8 @@ const LanguageContext = createContext();
 export const translations = {
   en: {
     // Header
-    septemberDashboard: "September Dashboard",
-    septemberMornings: "September mornings bring fresh starts",
+    septemberDashboard: "MoodFlow",
+    septemberMornings: "Track your emotions and boost your wellbeing",
     
     // Current Time
     currentTime: "Current Time",
@@ -128,6 +128,22 @@ export const translations = {
     clearSuccess: "All data cleared. Reloading...",
     close: "Close",
     
+    // Login
+    loginSubtitle: "Track your emotions and boost your wellbeing",
+    welcomeBack: "Welcome Back",
+    email: "Email",
+    emailPlaceholder: "Enter your email",
+    password: "Password",
+    passwordPlaceholder: "Enter your password",
+    login: "Sign In",
+    loggingIn: "Signing in...",
+    loginError: "Invalid email or password",
+    noAccount: "Don't have an account?",
+    signUp: "Sign up",
+    loginFooter: "Your emotions matter",
+    welcome: "Welcome",
+    logout: "Logout",
+    
     // Days
     sun: "Sun",
     mon: "Mon",
@@ -168,8 +184,8 @@ export const translations = {
   
   fr: {
     // Header
-    septemberDashboard: "Tableau de bord Septembre",
-    septemberMornings: "Les matins de septembre apportent de nouveaux départs",
+    septemberDashboard: "MoodFlow",
+    septemberMornings: "Suivez vos émotions et améliorez votre bien-être",
     
     // Current Time
     currentTime: "Heure Actuelle",
@@ -288,6 +304,22 @@ export const translations = {
     confirmClear2: "⚠️ Dernière chance ! Cette action est irréversible !",
     clearSuccess: "Toutes les données ont été effacées. Rechargement...",
     close: "Fermer",
+    
+    // Login
+    loginSubtitle: "Suivez vos émotions et améliorez votre bien-être",
+    welcomeBack: "Bon Retour",
+    email: "Email",
+    emailPlaceholder: "Entrez votre email",
+    password: "Mot de passe",
+    passwordPlaceholder: "Entrez votre mot de passe",
+    login: "Se Connecter",
+    loggingIn: "Connexion...",
+    loginError: "Email ou mot de passe invalide",
+    noAccount: "Pas de compte ?",
+    signUp: "S'inscrire",
+    loginFooter: "Vos émotions comptent",
+    welcome: "Bienvenue",
+    logout: "Déconnexion",
     
     // Days
     sun: "Dim",
