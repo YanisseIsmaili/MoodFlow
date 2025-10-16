@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Globe, Bell, Save, Download, Upload, Trash2, X, BarChart } from 'lucide-react';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const SettingsModal = ({ isOpen, onClose }) => {
+  const { t, language, setLanguage } = useLanguage();
   const [settings, setSettings] = useState(() => getFromStorage('appSettings', {
     language: 'en',
     notifications: true,
@@ -19,7 +21,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Calculer les statistiques
       const moodHistory = getFromStorage('moodHistory', []);
       const calendarEvents = getFromStorage('calendarEvents', {});
       const moodBoardNotes = getFromStorage('moodBoardNotes', []);
@@ -76,7 +77,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
       try {
         const data = JSON.parse(e.target.result);
         
-        if (window.confirm(t.confirmImport || 'This will replace all your current data. Are you sure?')) {
+        if (window.confirm(t('confirmImport'))) {
           if (data.moodHistory) saveToStorage('moodHistory', data.moodHistory);
           if (data.calendarEvents) saveToStorage('calendarEvents', data.calendarEvents);
           if (data.moodBoardNotes) saveToStorage('moodBoardNotes', data.moodBoardNotes);
@@ -88,11 +89,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
             saveToStorage('appSettings', data.settings);
           }
 
-          alert(t.importSuccess || 'Data imported successfully! Reloading...');
+          alert(t('importSuccess'));
           window.location.reload();
         }
       } catch (error) {
-        alert(t.importError || 'Error importing data. Please check the file format.');
+        alert(t('importError'));
         console.error('Import error:', error);
       }
     };
@@ -100,63 +101,14 @@ const SettingsModal = ({ isOpen, onClose }) => {
   };
 
   const clearAllData = () => {
-    if (window.confirm(t.confirmClear1 || '⚠️ This will delete ALL your data permanently. Are you sure?')) {
-      if (window.confirm(t.confirmClear2 || '⚠️ Last chance! This action cannot be undone!')) {
+    if (window.confirm(t('confirmClear1'))) {
+      if (window.confirm(t('confirmClear2'))) {
         localStorage.clear();
-        alert(t.clearSuccess || 'All data cleared. Reloading...');
+        alert(t('clearSuccess'));
         window.location.reload();
       }
     }
   };
-
-  const translations = {
-    en: {
-      title: 'Settings',
-      language: 'Language',
-      notifications: 'Notifications',
-      notificationsDesc: 'Enable browser notifications',
-      stats: 'Statistics',
-      moods: 'Moods',
-      events: 'Events',
-      notes: 'Notes',
-      sessions: 'Sessions',
-      dataManagement: 'Data Management',
-      export: 'Export Data',
-      import: 'Import Data',
-      clear: 'Clear All Data',
-      close: 'Close',
-      confirmImport: 'This will replace all your current data. Are you sure?',
-      importSuccess: 'Data imported successfully! Reloading...',
-      importError: 'Error importing data. Please check the file format.',
-      confirmClear1: '⚠️ This will delete ALL your data permanently. Are you sure?',
-      confirmClear2: '⚠️ Last chance! This action cannot be undone!',
-      clearSuccess: 'All data cleared. Reloading...'
-    },
-    fr: {
-      title: 'Paramètres',
-      language: 'Langue',
-      notifications: 'Notifications',
-      notificationsDesc: 'Activer les notifications du navigateur',
-      stats: 'Statistiques',
-      moods: 'Humeurs',
-      events: 'Événements',
-      notes: 'Notes',
-      sessions: 'Sessions',
-      dataManagement: 'Gestion des données',
-      export: 'Exporter',
-      import: 'Importer',
-      clear: 'Tout effacer',
-      close: 'Fermer',
-      confirmImport: 'Cela remplacera toutes vos données actuelles. Êtes-vous sûr ?',
-      importSuccess: 'Données importées avec succès ! Rechargement...',
-      importError: 'Erreur lors de l\'importation. Vérifiez le format du fichier.',
-      confirmClear1: '⚠️ Cela supprimera TOUTES vos données définitivement. Êtes-vous sûr ?',
-      confirmClear2: '⚠️ Dernière chance ! Cette action est irréversible !',
-      clearSuccess: 'Toutes les données ont été effacées. Rechargement...'
-    }
-  };
-
-  const t = translations[settings.language];
 
   if (!isOpen) return null;
 
@@ -167,7 +119,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         <div className="sticky top-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-t-3xl flex items-center justify-between">
           <div className="flex items-center gap-3">
             <SettingsIcon className="w-7 h-7" />
-            <h2 className="text-2xl font-bold">{t.title}</h2>
+            <h2 className="text-2xl font-bold">{t('settings')}</h2>
           </div>
           <button
             onClick={onClose}
@@ -181,9 +133,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
         <div className="p-6 space-y-4">
           {/* Language */}
           <div className="bg-white/60 rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3">
               <Globe className="w-5 h-5 text-purple-600" />
-              <span className="font-bold text-amber-900">{t.language}</span>
+              <span className="font-bold text-amber-900">{t('language')}</span>
             </div>
             <div className="flex gap-2">
               <button
@@ -215,8 +167,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               <div className="flex items-center gap-2">
                 <Bell className="w-5 h-5 text-blue-600" />
                 <div>
-                  <div className="font-bold text-amber-900">{t.notifications}</div>
-                  <div className="text-xs text-amber-600">{t.notificationsDesc}</div>
+                  <div className="font-bold text-amber-900">{t('notifications')}</div>
+                  <div className="text-xs text-amber-600">{t('notificationsDesc')}</div>
                 </div>
               </div>
               <button
@@ -236,24 +188,24 @@ const SettingsModal = ({ isOpen, onClose }) => {
           <div className="bg-white/60 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <BarChart className="w-5 h-5 text-green-600" />
-              <span className="font-bold text-amber-900">{t.stats}</span>
+              <span className="font-bold text-amber-900">{t('stats')}</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-purple-100 rounded-xl p-3 text-center">
                 <div className="text-2xl font-bold text-purple-600">{stats.moodHistory}</div>
-                <div className="text-xs text-purple-700">{t.moods}</div>
+                <div className="text-xs text-purple-700">{t('moods')}</div>
               </div>
               <div className="bg-blue-100 rounded-xl p-3 text-center">
                 <div className="text-2xl font-bold text-blue-600">{stats.calendarEvents}</div>
-                <div className="text-xs text-blue-700">{t.events}</div>
+                <div className="text-xs text-blue-700">{t('calendarEvents')}</div>
               </div>
               <div className="bg-green-100 rounded-xl p-3 text-center">
                 <div className="text-2xl font-bold text-green-600">{stats.moodBoardNotes}</div>
-                <div className="text-xs text-green-700">{t.notes}</div>
+                <div className="text-xs text-green-700">{t('moodBoardNotes')}</div>
               </div>
               <div className="bg-orange-100 rounded-xl p-3 text-center">
                 <div className="text-2xl font-bold text-orange-600">{stats.pomodoroSessions}</div>
-                <div className="text-xs text-orange-700">{t.sessions}</div>
+                <div className="text-xs text-orange-700">{t('pomodoroSessions')}</div>
               </div>
             </div>
           </div>
@@ -262,7 +214,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           <div className="bg-white/60 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <Save className="w-5 h-5 text-indigo-600" />
-              <span className="font-bold text-amber-900">{t.dataManagement}</span>
+              <span className="font-bold text-amber-900">{t('dataManagement')}</span>
             </div>
             <div className="space-y-2">
               <button
@@ -270,12 +222,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 className="w-full flex items-center gap-3 p-3 bg-blue-100 hover:bg-blue-200 rounded-xl transition-all"
               >
                 <Download className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold text-blue-900">{t.export}</span>
+                <span className="font-semibold text-blue-900">{t('export')}</span>
               </button>
 
               <label className="w-full flex items-center gap-3 p-3 bg-green-100 hover:bg-green-200 rounded-xl transition-all cursor-pointer">
                 <Upload className="w-5 h-5 text-green-600" />
-                <span className="font-semibold text-green-900">{t.import}</span>
+                <span className="font-semibold text-green-900">{t('import')}</span>
                 <input
                   type="file"
                   accept=".json"
@@ -289,7 +241,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 className="w-full flex items-center gap-3 p-3 bg-red-100 hover:bg-red-200 rounded-xl transition-all"
               >
                 <Trash2 className="w-5 h-5 text-red-600" />
-                <span className="font-semibold text-red-900">{t.clear}</span>
+                <span className="font-semibold text-red-900">{t('clear')}</span>
               </button>
             </div>
           </div>
@@ -301,7 +253,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="w-full bg-gradient-to-r from-amber-400 to-orange-400 text-white py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg"
           >
-            {t.close}
+            {t('close')}
           </button>
         </div>
       </div>
