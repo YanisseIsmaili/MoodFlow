@@ -17,6 +17,7 @@ const QuickActions = ({ onAddNote, onAddEvent }) => {
     "You are capable of amazing things! ✨"
   ];
 
+  
   const getRandomQuote = () => {
     return motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
   };
