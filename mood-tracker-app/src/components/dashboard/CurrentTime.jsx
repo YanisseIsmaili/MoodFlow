@@ -1,15 +1,17 @@
 // src/components/dashboard/CurrentTime.jsx
 import React, { useState, useEffect } from 'react';
 import { Clock, Sun, Cloud, CloudRain, Wind, MapPin, Droplets } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const CurrentTime = () => {
+  const { t, language } = useLanguage();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState({ lat: 48.8566, lon: 2.3522, city: 'Paris' });
 
   // OpenWeatherMap API Key (gratuite, 1000 appels/jour)
-  const WEATHER_API_KEY = 'bd5e378503939ddaee76f12ad7a97608'; // API key publique pour démo
+  const WEATHER_API_KEY = 'bd5e378503939ddaee76f12ad7a97608';
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -54,7 +56,7 @@ const CurrentTime = () => {
           temp: Math.round(data.main.temp),
           feels_like: Math.round(data.main.feels_like),
           humidity: data.main.humidity,
-          wind: Math.round(data.wind.speed * 3.6), // m/s to km/h
+          wind: Math.round(data.wind.speed * 3.6),
           description: data.weather[0].description,
           icon: data.weather[0].icon,
           city: data.name
@@ -74,6 +76,43 @@ const CurrentTime = () => {
     return () => clearInterval(interval);
   }, [location]);
 
+  const getWeatherDescription = () => {
+    if (!weather) return t('weatherUnavailable');
+    
+    const desc = weather.description;
+    
+    const weatherTranslations = {
+      en: {
+        'clear sky': 'Clear Sky',
+        'few clouds': 'Few Clouds',
+        'scattered clouds': 'Scattered Clouds',
+        'broken clouds': 'Broken Clouds',
+        'overcast clouds': 'Overcast',
+        'light rain': 'Light Rain',
+        'moderate rain': 'Moderate Rain',
+        'heavy rain': 'Heavy Rain',
+        'snow': 'Snow',
+        'mist': 'Mist',
+        'fog': 'Fog'
+      },
+      fr: {
+        'clear sky': 'Ciel Dégagé',
+        'few clouds': 'Peu Nuageux',
+        'scattered clouds': 'Nuages Épars',
+        'broken clouds': 'Nuageux',
+        'overcast clouds': 'Couvert',
+        'light rain': 'Pluie Légère',
+        'moderate rain': 'Pluie Modérée',
+        'heavy rain': 'Forte Pluie',
+        'snow': 'Neige',
+        'mist': 'Brume',
+        'fog': 'Brouillard'
+      }
+    };
+    
+    return weatherTranslations[language][desc] || desc;
+  };
+
   const getWeatherIcon = () => {
     if (!weather) return <Sun className="w-10 h-10 text-amber-500" />;
     
@@ -91,19 +130,29 @@ const CurrentTime = () => {
     <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
       <div className="flex items-center gap-2 text-amber-700 mb-4">
         <Clock className="w-5 h-5" />
-        <span className="font-semibold">Current Time</span>
+        <span className="font-semibold">{t('currentTime')}</span>
       </div>
 
       <div className="text-5xl font-bold text-amber-900 mb-2">
-        {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+        {currentTime.toLocaleTimeString(
+          language === 'fr' ? 'fr-FR' : 'en-US', 
+          { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: language === 'en'
+          }
+        )}
       </div>
 
       <div className="text-amber-700 mb-4">
-        {currentTime.toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric' 
-        })}
+        {currentTime.toLocaleDateString(
+          language === 'fr' ? 'fr-FR' : 'en-US', 
+          { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+          }
+        )}
       </div>
 
       {/* Weather Section */}
@@ -111,7 +160,7 @@ const CurrentTime = () => {
         {loading ? (
           <div className="flex items-center gap-2">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
-            <span className="text-sm text-amber-600">Loading weather...</span>
+            <span className="text-sm text-amber-600">{t('weatherUnavailable')}...</span>
           </div>
         ) : weather ? (
           <div>
@@ -120,8 +169,8 @@ const CurrentTime = () => {
                 {getWeatherIcon()}
                 <div>
                   <div className="text-3xl font-bold text-amber-900">{weather.temp}°C</div>
-                  <div className="text-sm text-amber-600 capitalize">{weather.description}</div>
-                  <div className="text-xs text-amber-500">Feels like {weather.feels_like}°C</div>
+                  <div className="text-sm text-amber-600 capitalize">{getWeatherDescription()}</div>
+                  <div className="text-xs text-amber-500">{t('feelsLike')} {weather.feels_like}°C</div>
                 </div>
               </div>
             </div>
@@ -131,14 +180,14 @@ const CurrentTime = () => {
               <div className="bg-white/50 rounded-lg p-2 flex items-center gap-2">
                 <Wind className="w-4 h-4 text-amber-600" />
                 <div>
-                  <div className="text-xs text-amber-600">Wind</div>
+                  <div className="text-xs text-amber-600">{t('wind')}</div>
                   <div className="text-sm font-bold text-amber-900">{weather.wind} km/h</div>
                 </div>
               </div>
               <div className="bg-white/50 rounded-lg p-2 flex items-center gap-2">
                 <Droplets className="w-4 h-4 text-amber-600" />
                 <div>
-                  <div className="text-xs text-amber-600">Humidity</div>
+                  <div className="text-xs text-amber-600">{t('humidity')}</div>
                   <div className="text-sm font-bold text-amber-900">{weather.humidity}%</div>
                 </div>
               </div>
@@ -159,16 +208,16 @@ const CurrentTime = () => {
                 className="flex items-center justify-center gap-2 text-xs text-amber-600 hover:text-amber-800 transition-colors"
               >
                 <Cloud className="w-4 h-4" />
-                <span>Weather by OpenWeatherMap</span>
+                <span>{t('weatherBy')}</span>
               </a>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 py-4">
             <Sun className="w-10 h-10 text-amber-500 opacity-50" />
-            <span className="text-sm text-amber-600">Weather unavailable</span>
+            <span className="text-sm text-amber-600">{t('weatherUnavailable')}</span>
             <p className="text-xs text-amber-500 text-center">
-              Enable location or check internet connection
+              {t('enableLocation')}
             </p>
           </div>
         )}

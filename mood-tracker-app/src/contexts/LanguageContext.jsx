@@ -6,6 +6,19 @@ const LanguageContext = createContext();
 
 export const translations = {
   en: {
+    // Header
+    septemberDashboard: "September Dashboard",
+    septemberMornings: "September mornings bring fresh starts",
+    
+    // Current Time
+    currentTime: "Current Time",
+    feelsLike: "Feels like",
+    wind: "Wind",
+    humidity: "Humidity",
+    weatherBy: "Weather by OpenWeatherMap",
+    weatherUnavailable: "Weather unavailable",
+    enableLocation: "Enable location or check internet connection",
+    
     // Mood Selector
     moodQuestion: "How are you feeling today?",
     shareMood: "Share your mood of the day",
@@ -13,7 +26,7 @@ export const translations = {
     good: "Good",
     okay: "Okay",
     sad: "Sad",
-    difficult: "Difficult",
+    difficult: "Bad",
     daysThisWeek: "days this week",
     whatHappening: "What's happening today?",
     tellUs: "Tell us about your day...",
@@ -22,23 +35,17 @@ export const translations = {
     addDetails: "Add details",
     save: "Save",
     lastMoods: "Last moods",
-    
-    // Header
-    septemberDashboard: "September Dashboard",
-    septemberMornings: "September mornings bring fresh starts",
-    
-    // Current Time
-    currentTime: "Current Time",
-    clearSky: "Clear Sky",
-    feelsLike: "Feels like",
-    wind: "Wind",
-    humidity: "Humidity",
-    weatherBy: "Weather by OpenWeatherMap",
-    weatherUnavailable: "Weather unavailable",
-    enableLocation: "Enable location or check internet connection",
+    iFeelGreat: "I feel",
+    thankYouSharing: "Thanks for sharing your mood",
     
     // Music Player
     septemberVibes: "September Vibes",
+    loading: "Loading...",
+    selectMode: "Select Mode:",
+    singleTracks: "Single Tracks",
+    playlists: "Playlists",
+    availablePlaylists: "Available Playlists:",
+    playlistMode: "Playlist Mode",
     
     // Today's Focus
     todaysFocus: "Today's Focus",
@@ -48,19 +55,19 @@ export const translations = {
     septemberLeavesEarned: "September Leaves Earned",
     
     // Focus Timer
-    focusTime: "Focus Time",
-    session: "Session",
-    autoStart: "Auto-start next session",
-    autoStartDesc: "Automatically begin after completion",
-    elapsed: "elapsed",
-    remaining: "remaining",
-    untilLongBreak: "until long break",
     pomodoroTimer: "Pomodoro Timer",
     sessions: "Sessions",
+    resetSessions: "Reset sessions",
     focus: "Focus",
-    shortBreak: "Short",
-    longBreak: "Long",
+    short: "Short",
+    long: "Long",
+    focusTime: "Focus Time",
+    shortBreak: "Short Break",
+    longBreak: "Long Break",
+    autoStartNext: "Auto-start next session",
+    autoStartDesc: "Automatically begin after completion",
     completed: "Completed",
+    untilLongBreak: "Until long break",
     
     // Quick Actions
     quickActions: "Quick Actions",
@@ -68,6 +75,7 @@ export const translations = {
     addCalendarEvent: "Add Calendar Event",
     openSettings: "Open Settings",
     motivateMe: "Motivate Me!",
+    settingsSoon: "Settings panel coming soon!",
     
     // Mood Board
     interactiveMoodBoard: "Interactive Mood Board",
@@ -76,14 +84,49 @@ export const translations = {
     typeNote: "Type your note and press Enter...",
     noNotes: "No notes yet",
     addFirstNote: "Add your first note above!",
-    dragTip: "💡 Tip: Click and drag notes to move them",
+    dragTip: "Tip: Click and drag notes to move them",
     
     // Calendar
     addEvent: "Add Event",
+    eventFor: "Add Event for",
     eventTitle: "Event title...",
-    noEvents: "No events or mood recorded",
+    noEventsOrMood: "No events or mood recorded",
     legend: "Legend:",
     event: "Event",
+    events: "events",
+    mood: "Mood",
+    
+    // Settings
+    settings: "Settings",
+    settingsSubtitle: "Customize your MoodTracker experience",
+    language: "Language",
+    languageDesc: "Choose your preferred language",
+    theme: "Theme",
+    themeDesc: "Choose your display theme",
+    comingSoon: "Coming Soon",
+    notifications: "Notifications",
+    notificationsDesc: "Enable browser notifications",
+    stats: "Statistics",
+    statsDesc: "Your activity summary",
+    moods: "Moods recorded",
+    calendarEvents: "Calendar events",
+    moodBoardNotes: "Mood board notes",
+    pomodoroSessions: "Pomodoro sessions",
+    dataManagement: "Data Management",
+    export: "Export Data",
+    exportDesc: "Download all your data",
+    import: "Import Data",
+    importDesc: "Restore from backup",
+    clear: "Clear All Data",
+    clearDesc: "Delete everything (dangerous)",
+    backToDashboard: "Back to Dashboard",
+    confirmImport: "This will replace all your current data. Are you sure?",
+    importSuccess: "Data imported successfully! Reloading...",
+    importError: "Error importing data. Please check the file format.",
+    confirmClear1: "⚠️ This will delete ALL your data permanently. Are you sure?",
+    confirmClear2: "⚠️ Last chance! This action cannot be undone!",
+    clearSuccess: "All data cleared. Reloading...",
+    close: "Close",
     
     // Days
     sun: "Sun",
@@ -106,17 +149,45 @@ export const translations = {
     september: "September",
     october: "October",
     november: "November",
-    december: "December"
+    december: "December",
+    
+    // Activities
+    work: "Work",
+    study: "Study",
+    exercise: "Exercise",
+    friends: "Friends",
+    family: "Family",
+    gaming: "Gaming",
+    tvShows: "TV Shows",
+    music: "Music",
+    cooking: "Cooking",
+    meditation: "Meditation",
+    rest: "Rest",
+    creativity: "Creativity",
   },
+  
   fr: {
+    // Header
+    septemberDashboard: "Tableau de bord Septembre",
+    septemberMornings: "Les matins de septembre apportent de nouveaux départs",
+    
+    // Current Time
+    currentTime: "Heure Actuelle",
+    feelsLike: "Ressenti",
+    wind: "Vent",
+    humidity: "Humidité",
+    weatherBy: "Météo par OpenWeatherMap",
+    weatherUnavailable: "Météo indisponible",
+    enableLocation: "Activez la localisation ou vérifiez votre connexion",
+    
     // Mood Selector
     moodQuestion: "Comment te sens-tu aujourd'hui ?",
     shareMood: "Partage ton humeur du jour",
-    amazing: "Incroyable",
+    amazing: "Super Bien",
     good: "Bien",
-    okay: "Correct",
+    okay: "Normal",
     sad: "Triste",
-    difficult: "Difficile",
+    difficult: "Mal",
     daysThisWeek: "jours cette semaine",
     whatHappening: "Que se passe-t-il aujourd'hui ?",
     tellUs: "Raconte-nous ta journée...",
@@ -125,23 +196,17 @@ export const translations = {
     addDetails: "Ajouter des détails",
     save: "Enregistrer",
     lastMoods: "Dernières humeurs",
-    
-    // Header
-    septemberDashboard: "Tableau de bord Septembre",
-    septemberMornings: "Les matins de septembre apportent de nouveaux départs",
-    
-    // Current Time
-    currentTime: "Heure Actuelle",
-    clearSky: "Ciel Dégagé",
-    feelsLike: "Ressenti",
-    wind: "Vent",
-    humidity: "Humidité",
-    weatherBy: "Météo par OpenWeatherMap",
-    weatherUnavailable: "Météo indisponible",
-    enableLocation: "Activez la localisation ou vérifiez votre connexion",
+    iFeelGreat: "Je me sens",
+    thankYouSharing: "Merci de partager ton humeur",
     
     // Music Player
     septemberVibes: "Ambiance Septembre",
+    loading: "Chargement...",
+    selectMode: "Sélectionner le mode :",
+    singleTracks: "Morceaux Individuels",
+    playlists: "Playlists",
+    availablePlaylists: "Playlists disponibles :",
+    playlistMode: "Mode Playlist",
     
     // Today's Focus
     todaysFocus: "Focus du Jour",
@@ -151,19 +216,19 @@ export const translations = {
     septemberLeavesEarned: "Feuilles de Septembre Gagnées",
     
     // Focus Timer
-    focusTime: "Temps de Focus",
-    session: "Session",
-    autoStart: "Démarrage automatique",
-    autoStartDesc: "Commencer automatiquement après la fin",
-    elapsed: "écoulé",
-    remaining: "restant",
-    untilLongBreak: "avant pause longue",
     pomodoroTimer: "Minuteur Pomodoro",
     sessions: "Sessions",
+    resetSessions: "Réinitialiser sessions",
     focus: "Focus",
-    shortBreak: "Court",
-    longBreak: "Long",
+    short: "Court",
+    long: "Long",
+    focusTime: "Temps de Focus",
+    shortBreak: "Pause Courte",
+    longBreak: "Pause Longue",
+    autoStartNext: "Démarrage automatique",
+    autoStartDesc: "Commencer automatiquement après la fin",
     completed: "Terminées",
+    untilLongBreak: "avant pause longue",
     
     // Quick Actions
     quickActions: "Actions Rapides",
@@ -171,6 +236,7 @@ export const translations = {
     addCalendarEvent: "Ajouter un Événement",
     openSettings: "Paramètres",
     motivateMe: "Motive-moi !",
+    settingsSoon: "Panneau de paramètres bientôt disponible !",
     
     // Mood Board
     interactiveMoodBoard: "Tableau d'Humeur Interactif",
@@ -179,14 +245,49 @@ export const translations = {
     typeNote: "Tapez votre note et appuyez sur Entrée...",
     noNotes: "Aucune note pour le moment",
     addFirstNote: "Ajoutez votre première note ci-dessus !",
-    dragTip: "💡 Astuce : Cliquez et faites glisser les notes pour les déplacer",
+    dragTip: "Astuce : Cliquez et faites glisser les notes pour les déplacer",
     
     // Calendar
     addEvent: "Ajouter Événement",
+    eventFor: "Ajouter événement pour",
     eventTitle: "Titre de l'événement...",
-    noEvents: "Aucun événement ou humeur enregistré",
+    noEventsOrMood: "Aucun événement ou humeur enregistré",
     legend: "Légende :",
     event: "Événement",
+    events: "événements",
+    mood: "Humeur",
+    
+    // Settings
+    settings: "Paramètres",
+    settingsSubtitle: "Personnalisez votre expérience MoodTracker",
+    language: "Langue",
+    languageDesc: "Choisissez votre langue préférée",
+    theme: "Thème",
+    themeDesc: "Choisissez votre thème d'affichage",
+    comingSoon: "Bientôt disponible",
+    notifications: "Notifications",
+    notificationsDesc: "Activer les notifications du navigateur",
+    stats: "Statistiques",
+    statsDesc: "Résumé de votre activité",
+    moods: "Humeurs enregistrées",
+    calendarEvents: "Événements calendrier",
+    moodBoardNotes: "Notes mood board",
+    pomodoroSessions: "Sessions Pomodoro",
+    dataManagement: "Gestion des données",
+    export: "Exporter les données",
+    exportDesc: "Télécharger toutes vos données",
+    import: "Importer les données",
+    importDesc: "Restaurer depuis une sauvegarde",
+    clear: "Effacer toutes les données",
+    clearDesc: "Tout supprimer (dangereux)",
+    backToDashboard: "Retour au tableau de bord",
+    confirmImport: "Cela remplacera toutes vos données actuelles. Êtes-vous sûr ?",
+    importSuccess: "Données importées avec succès ! Rechargement...",
+    importError: "Erreur lors de l'importation. Vérifiez le format du fichier.",
+    confirmClear1: "⚠️ Cela supprimera TOUTES vos données définitivement. Êtes-vous sûr ?",
+    confirmClear2: "⚠️ Dernière chance ! Cette action est irréversible !",
+    clearSuccess: "Toutes les données ont été effacées. Rechargement...",
+    close: "Fermer",
     
     // Days
     sun: "Dim",
@@ -209,7 +310,21 @@ export const translations = {
     september: "Septembre",
     october: "Octobre",
     november: "Novembre",
-    december: "Décembre"
+    december: "Décembre",
+    
+    // Activities
+    work: "Travail",
+    study: "Études",
+    exercise: "Sport",
+    friends: "Amis",
+    family: "Famille",
+    gaming: "Jeux",
+    tvShows: "Séries",
+    music: "Musique",
+    cooking: "Cuisine",
+    meditation: "Méditation",
+    rest: "Repos",
+    creativity: "Créativité",
   }
 };
 
