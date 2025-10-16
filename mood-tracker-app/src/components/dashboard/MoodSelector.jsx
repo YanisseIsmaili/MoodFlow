@@ -14,7 +14,7 @@ const MoodSelector = () => {
     { 
       id: 'amazing', 
       emoji: '😄', 
-      label: 'Incroyable', 
+      label: 'Super Bien', 
       color: 'from-green-400 to-emerald-500',
       bgColor: 'bg-green-100',
       textColor: 'text-green-800'
