@@ -3,8 +3,10 @@ import React, { useState, useRef } from 'react';
 import { Target, Plus } from 'lucide-react';
 import { useNotes } from '../../hooks/useNotes';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const MoodBoard = () => {
+  const { t } = useLanguage();
   const initialNotes = getFromStorage('moodBoardNotes', [
     { id: 1, text: 'Remember to review Chapter 7', color: '#fef08a', x: 100, y: 50 },
     { id: 2, text: 'Coffee at 2pm ☕', color: '#f9a8d4', x: 350, y: 100 }
@@ -49,13 +51,12 @@ const MoodBoard = () => {
     if (draggingNote === null || !boardRef.current) return;
 
     const boardRect = boardRef.current.getBoundingClientRect();
-    const maxWidth = boardRect.width - 220; // 200px note width + 20px margin
-    const maxHeight = boardRect.height - 120; // ~100px note height + 20px margin
+    const maxWidth = boardRect.width - 220;
+    const maxHeight = boardRect.height - 120;
 
     let newX = e.clientX - boardRect.left - offset.x;
     let newY = e.clientY - boardRect.top - offset.y;
 
-    // Limiter aux bordures du board
     newX = Math.max(0, Math.min(newX, maxWidth));
     newY = Math.max(0, Math.min(newY, maxHeight));
 
@@ -83,9 +84,9 @@ const MoodBoard = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-amber-700">
           <Target className="w-5 h-5" />
-          <span className="font-semibold">Interactive Mood Board</span>
+          <span className="font-semibold">{t('interactiveMoodBoard')}</span>
           <span className="text-xs bg-amber-200 text-amber-700 px-2 py-1 rounded-full">
-            {notes.length} notes
+            {notes.length} {t('notes')}
           </span>
         </div>
         <button
@@ -93,7 +94,7 @@ const MoodBoard = () => {
           className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-4 py-2 rounded-xl font-semibold hover:scale-105 transition-transform shadow-md flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          Add Note
+          {t('addNote')}
         </button>
       </div>
 
@@ -103,7 +104,7 @@ const MoodBoard = () => {
           value={newNoteText}
           onChange={(e) => setNewNoteText(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type your note and press Enter..."
+          placeholder={t('typeNote')}
           className="w-full px-4 py-3 bg-white/60 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 text-amber-900 placeholder-amber-400"
         />
       </div>
@@ -117,8 +118,8 @@ const MoodBoard = () => {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-amber-600">
               <Target className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-semibold">Aucune note pour le moment</p>
-              <p className="text-sm">Ajoutez votre première note ci-dessus !</p>
+              <p className="text-lg font-semibold">{t('noNotes')}</p>
+              <p className="text-sm">{t('addFirstNote')}</p>
             </div>
           </div>
         )}
@@ -164,8 +165,8 @@ const MoodBoard = () => {
       </div>
 
       <div className="mt-4 flex items-center justify-between text-xs text-amber-600">
-        <span>💡 Astuce : Cliquez et faites glisser les notes pour les déplacer</span>
-        <span className="font-semibold">{notes.length} / ∞ notes</span>
+        <span>💡 {t('dragTip')}</span>
+        <span className="font-semibold">{notes.length} / ∞ {t('notes')}</span>
       </div>
     </div>
   );
