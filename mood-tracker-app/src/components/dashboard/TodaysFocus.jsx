@@ -25,19 +25,35 @@ const TodaysFocus = () => {
   const updateTask = (taskName, increment = true) => {
     setTasks(prev => {
       const task = prev[taskName];
-      const newCurrent = increment 
-        ? Math.min(task.current + 1, task.target)
-        : Math.max(task.current - 1, 0);
       
-      return {
-        ...prev,
-        [taskName]: { ...task, current: newCurrent }
-      };
+      if (increment) {
+        // Ne pas dépasser la target
+        if (task.current >= task.target) return prev;
+        
+        const newCurrent = task.current + 1;
+        
+        // Ajouter une feuille seulement si on incrémente
+        setLeaves(prevLeaves => prevLeaves + 1);
+        
+        return {
+          ...prev,
+          [taskName]: { ...task, current: newCurrent }
+        };
+      } else {
+        // Ne pas descendre en dessous de 0
+        if (task.current <= 0) return prev;
+        
+        const newCurrent = task.current - 1;
+        
+        // Retirer une feuille seulement si on en a
+        setLeaves(prevLeaves => Math.max(0, prevLeaves - 1));
+        
+        return {
+          ...prev,
+          [taskName]: { ...task, current: newCurrent }
+        };
+      }
     });
-
-    if (increment) {
-      setLeaves(prev => prev + 1);
-    }
   };
 
   const getProgress = (current, target) => {
@@ -80,15 +96,25 @@ const TodaysFocus = () => {
               </span>
               <button
                 onClick={() => updateTask('studyHours', true)}
-                className="text-green-600 hover:text-green-800 text-xl"
+                disabled={tasks.studyHours.current >= tasks.studyHours.target}
+                className={`w-7 h-7 rounded-lg font-bold text-lg flex items-center justify-center shadow-md transition-all ${
+                  tasks.studyHours.current >= tasks.studyHours.target
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600 text-white hover:scale-110'
+                }`}
               >
                 +
               </button>
               <button
                 onClick={() => updateTask('studyHours', false)}
-                className="text-red-600 hover:text-red-800 text-xl"
+                disabled={tasks.studyHours.current <= 0}
+                className={`w-7 h-7 rounded-lg font-bold text-lg flex items-center justify-center shadow-md transition-all ${
+                  tasks.studyHours.current <= 0
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-red-500 hover:bg-red-600 text-white hover:scale-110'
+                }`}
               >
-                -
+                −
               </button>
             </div>
           </div>
@@ -110,15 +136,15 @@ const TodaysFocus = () => {
               </span>
               <button
                 onClick={() => updateTask('workInProgress', true)}
-                className="text-green-600 hover:text-green-800 text-xl"
+                className="w-7 h-7 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg flex items-center justify-center shadow-md transition-all hover:scale-110"
               >
                 +
               </button>
               <button
                 onClick={() => updateTask('workInProgress', false)}
-                className="text-red-600 hover:text-red-800 text-xl"
+                className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg font-bold text-lg flex items-center justify-center shadow-md transition-all hover:scale-110"
               >
-                -
+                −
               </button>
             </div>
           </div>
@@ -140,15 +166,15 @@ const TodaysFocus = () => {
               </span>
               <button
                 onClick={() => updateTask('tasksCompleted', true)}
-                className="text-green-600 hover:text-green-800 text-xl"
+                className="w-7 h-7 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg flex items-center justify-center shadow-md transition-all hover:scale-110"
               >
                 +
               </button>
               <button
                 onClick={() => updateTask('tasksCompleted', false)}
-                className="text-red-600 hover:text-red-800 text-xl"
+                className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg font-bold text-lg flex items-center justify-center shadow-md transition-all hover:scale-110"
               >
-                -
+                −
               </button>
             </div>
           </div>

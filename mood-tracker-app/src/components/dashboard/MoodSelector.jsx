@@ -30,7 +30,7 @@ const MoodSelector = () => {
     { 
       id: 'okay', 
       emoji: '😐', 
-      label: 'Correct', 
+      label: 'Normal', 
       color: 'from-yellow-400 to-amber-500',
       bgColor: 'bg-yellow-100',
       textColor: 'text-yellow-800'
@@ -46,7 +46,7 @@ const MoodSelector = () => {
     { 
       id: 'bad', 
       emoji: '😢', 
-      label: 'Difficile', 
+      label: 'Mal', 
       color: 'from-red-400 to-pink-500',
       bgColor: 'bg-red-100',
       textColor: 'text-red-800'
