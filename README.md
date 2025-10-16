@@ -258,10 +258,9 @@ npm run dev
 
 | Spécialité | Membre | Contributions |
 |------------|--------|---------------|
-| **Web Dev** | [Nom] | Interface React, UX/UI, Components |
-| **Data** | [Nom] | Analytics, Visualisations, Statistiques |
-| **Infra** | [Nom] | Déploiement, Docker, Architecture |
-| **Cyber** | [Nom] | Sécurité, JWT, Audit |
+| **Frontend** | Yanisse ISMAILI & Julien BONNET | Interface React, UX/UI, Components |
+| **Backend** | Dorian BLATIERE | JWT, structure des données, API REST |
+| **API & Infra** | Théau YAPI | Déploiement, connexion API entre le front et le back, Sécurité |
 
 ### Choix UX/UI
 
