@@ -131,6 +131,15 @@ class ApiService {
     localStorage.setItem('auth_token', token);
     localStorage.setItem('user_data', JSON.stringify(user));
   }
+
+  getAuthData() {
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
+    return {
+      token,
+      user: userData ? JSON.parse(userData) : null
+    };
+  }
 }
 
 // Exporter une instance unique
