@@ -25,22 +25,22 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto) {
-        const user = await this.validateUser(loginDto.username, loginDto.password);
+        const user1 = await this.validateUser(loginDto.username, loginDto.password);
 
-        if (!user) {
+        if (!user1) {
             throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
         }
 
-        const payload = { username: user.username, sub: user.uuid };
+        const payload = { username: user1.username, sub: user1.uuid };
         const access_token = this.jwtService.sign(payload);
 
         // Transformer l'utilisateur pour exclure les champs non exposés (comme password)
-        const safeUser = plainToInstance(User, user, { excludeExtraneousValues: true });
+        const user = plainToInstance(User, user1, { excludeExtraneousValues: true });
 
         return {
             message: 'Login successful',
             access_token,
-            safeUser,
+            user,
         };
     }
 
