@@ -59,8 +59,33 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
     }
   ];
 
-  // Use activity keys (matching backend enum) and localized labels
-  const activities = ACTIVITY_KEYS.map(key => ({ key, label: getActivityLabel(key, language) }));
+  const activities = language === 'fr' ? [
+    '💼 Travail',
+    '📚 Études',
+    '🏃 Sport',
+    '👥 Amis',
+    '👨‍👩‍👧‍👦 Famille',
+    '🎮 Jeux',
+    '📺 Séries',
+    '🎵 Musique',
+    '🍳 Cuisine',
+    '🧘 Méditation',
+    '🛏️ Repos',
+    '🎨 Créativité'
+  ] : [
+    '💼 Work',
+    '📚 Study',
+    '🏃 Exercise',
+    '👥 Friends',
+    '👨‍👩‍👧‍👦 Family',
+    '🎮 Gaming',
+    '📺 TV Shows',
+    '🎵 Music',
+    '🍳 Cooking',
+    '🧘 Meditation',
+    '🛏️ Rest',
+    '🎨 Creativity'
+  ];
 
   // Charger les données existantes pour cette date
   useEffect(() => {
@@ -81,20 +106,7 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
         console.log('✅ Humeur trouvée:', existingMood);
         setSelectedMood(existingMood.state || existingMood.mood);
         setMoodNote(existingMood.description || existingMood.note || '');
-
-        // Normalize activities: backend may return array of objects [{ label: 'WORK' }] or array of strings
-        const rawActivities = existingMood.activities || [];
-        const normalized = rawActivities.map(a => {
-          if (!a) return null;
-          if (typeof a === 'string') return a; // already a key
-          // Might be object with label or key
-          if (a.label) return a.label;
-          if (a.key) return a.key;
-          return null;
-        }).filter(Boolean);
-
-        // Filter to known keys
-        setSelectedActivities(normalized.filter(k => ACTIVITY_KEYS.includes(k)));
+        setSelectedActivities(existingMood.activities || []);
       } else {
         console.log('❌ Aucune humeur trouvée, réinitialisation');
         setSelectedMood(null);
@@ -131,9 +143,10 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
       const moodData = {
         date: dateStr,
         state: selectedMood,
-        description: moodNote || undefined,
-        activities: selectedActivities.length ? selectedActivities : undefined
+        description: moodNote || undefined
       };
+
+      console.log('📡 Données à envoyer:', moodData);
 
       // Envoyer à l'API
       await apiService.createMood(moodData);
@@ -157,9 +170,9 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
       }
 
       // Recharger la page après un court délai pour voir les changements
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+    //   setTimeout(() => {
+    //     window.location.reload();
+    //   }, 500);
 
       onClose();
     } catch (error) {
@@ -273,15 +286,15 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
                 <div className="grid grid-cols-3 gap-2">
                   {activities.map(({ key, label }) => (
                     <button
-                      key={key}
-                      onClick={() => toggleActivity(key)}
+                      key={activity}
+                      onClick={() => toggleActivity(activity)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        selectedActivities.includes(key)
+                        selectedActivities.includes(activity)
                           ? `bg-gradient-to-r ${selectedMoodData.color} text-white shadow-lg scale-105`
                           : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
                       }`}
                     >
-                      {label}
+                      {activity}
                     </button>
                   ))}
                 </div>

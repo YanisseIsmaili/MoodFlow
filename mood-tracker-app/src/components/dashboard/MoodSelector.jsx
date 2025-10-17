@@ -133,8 +133,7 @@ const MoodSelector = () => {
       const moodData = {
         date: today,
         state: todayMood,
-        description: moodNote || undefined,
-        username: user?.username
+        description: moodNote || undefined
       };
 
       await apiService.createMood(moodData);
