@@ -79,8 +79,9 @@ class ApiService {
     const backendData = {
       firstName: userData.firstName,
       lastName: userData.lastName,
-      email: userData.email,
-      username: userData.username, // Utiliser le username fourni
+      username: userData.username,
+      email: userData.email,        // Utiliser le username fourni
+
       password: userData.password,
     };
     
