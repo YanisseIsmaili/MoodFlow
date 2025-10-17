@@ -67,6 +67,15 @@ const WidgetSidebar = () => {
           ${dragOverZone ? 'bg-orange-50 ring-4 ring-orange-400 ring-inset' : ''}
         `}
       >
+        {/* Drop zone indicator - Position absolute pour stabiliser la hitbox */}
+        {dragOverZone && (
+          <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+            <div className="bg-orange-200/95 border-4 border-dashed border-orange-500 rounded-2xl p-8 m-8 backdrop-blur-sm shadow-2xl">
+              <p className="text-orange-800 font-bold text-xl text-center">⬇️ Déposez ici pour masquer</p>
+            </div>
+          </div>
+        )}
+        
         <div className="p-6 h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -91,13 +100,6 @@ const WidgetSidebar = () => {
               <p className="text-xs text-blue-700 mt-1">
                 Réorganisez : glissez carte sur carte | Masquez : glissez ici →
               </p>
-            </div>
-          )}
-
-          {/* Drop zone indicator */}
-          {dragOverZone && (
-            <div className="mb-4 p-4 bg-orange-200 border-2 border-dashed border-orange-500 rounded-lg text-center">
-              <p className="text-orange-800 font-bold">⬇️ Déposez ici pour masquer</p>
             </div>
           )}
 
