@@ -24,7 +24,7 @@ export const MOOD_LABELS = {
   [MOOD_STATES.OK]: {
     label: 'Correct',
     emoji: '😐',
-    color: 'yellow'
+    color: 'yellow' 
   },
   [MOOD_STATES.GOOD]: {
     label: 'Bien',
