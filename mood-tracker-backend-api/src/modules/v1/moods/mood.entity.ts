@@ -5,15 +5,18 @@ import {
     CreateDateColumn,
     ManyToOne,
     Unique,
+    OneToMany,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Expose } from 'class-transformer';
 import { State } from './enums/state.enum';
+import { MoodActivity } from '../activities/moodactivity.entity';
 
 @Entity('moods')
 @Unique(['user', 'date']) // empêche deux humeurs pour le même user à la même date
 export class Mood {
     @PrimaryGeneratedColumn()
+    @Expose()
     id: number;
 
     @Column({ type: 'date', nullable: false })
@@ -33,4 +36,8 @@ export class Mood {
 
     @ManyToOne(() => User, (user) => user.moods, { onDelete: 'CASCADE' })
     user: User;
+    
+    @OneToMany(() => MoodActivity, (activity) => activity.mood, { cascade: true, nullable: true })
+    @Expose()
+    activities?: MoodActivity[];
 }

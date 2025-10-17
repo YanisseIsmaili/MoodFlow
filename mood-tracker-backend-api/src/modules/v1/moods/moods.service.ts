@@ -7,9 +7,11 @@ import { User } from '../users/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { State } from './enums/state.enum';
 import { isAfter, parseISO, startOfDay } from 'date-fns';
+import { MoodActivity } from '../activities/moodactivity.entity';
 
 @Injectable()
 export class MoodsService {
+    
 
     constructor(
         @InjectRepository(Mood)
@@ -60,11 +62,23 @@ export class MoodsService {
 
         // Créer une nouvelle humeur
         mood = this.moodRepository.create({
-            ...createMoodDto,
+            date: createMoodDto.date,
+            description: createMoodDto.description,
             state: normalizedState,
             user,
         });
 
+        // Si des activités sont fournies, les transformer en MoodActivity
+        if (createMoodDto.activities?.length) {
+            mood.activities = createMoodDto.activities.map(label => {
+                const activity = new MoodActivity();
+                activity.label = label;
+                activity.mood = mood; // lien vers le mood
+                return activity;
+            });
+        }
+
+        // Sauvegarder mood + activities en cascade
         const savedMood = await this.moodRepository.save(mood);
 
         return {
@@ -108,9 +122,25 @@ export class MoodsService {
                     endOfMonth.toISOString().split('T')[0],
                 ),
             },
-            relations: ['user'],
+            relations: ['user', 'activities'],
         });
 
         return moods.map((mood) => plainToInstance(Mood, mood, { excludeExtraneousValues: true }));
+    }
+
+    async deleteMoodById(id: number, userUuid: string): Promise<boolean> {
+        // const user = await this.userRepository.findOne({ where: { id } });
+
+        const mood = await this.moodRepository.findOne({
+            where: { id, user: { uuid: userUuid } },
+        });
+
+        if (!mood) {
+            return false;
+        }
+
+        await this.moodRepository.remove(mood);
+
+        return true;
     }
 }
