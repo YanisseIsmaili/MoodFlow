@@ -32,9 +32,11 @@ const Dashboard = ({ onOpenSettings }) => {
     .filter(w => w.visible)
     .sort((a, b) => a.order - b.order);
 
-  // Long press handlers
+  // Long press handlers - UNIQUEMENT sur le fond du dashboard
   const handleTouchStart = (e) => {
-    if (e.target.closest('.no-long-press')) return;
+    // Ignorer si clic sur un élément no-long-press ou sur une carte widget
+    if (e.target.closest('.no-long-press') || e.target.closest('.widget-card')) return;
+    
     longPressTimer.current = setTimeout(() => {
       setSidebarOpen(true);
     }, 800);
@@ -47,7 +49,9 @@ const Dashboard = ({ onOpenSettings }) => {
   };
 
   const handleMouseDown = (e) => {
-    if (e.target.closest('.no-long-press')) return;
+    // Ignorer si clic sur un élément no-long-press ou sur une carte widget
+    if (e.target.closest('.no-long-press') || e.target.closest('.widget-card')) return;
+    
     longPressTimer.current = setTimeout(() => {
       setSidebarOpen(true);
     }, 800);
@@ -146,7 +150,7 @@ const Dashboard = ({ onOpenSettings }) => {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
           {visibleWidgets.map((widget) => (
-            <div key={widget.id} className={`${getWidgetClass(widget.id)} flex`}>
+            <div key={widget.id} className={`${getWidgetClass(widget.id)} flex widget-card`}>
               <DraggableWidget id={widget.id} className="w-full">
                 {renderWidget(widget.id)}
               </DraggableWidget>

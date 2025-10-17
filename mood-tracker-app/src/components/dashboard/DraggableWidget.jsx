@@ -3,28 +3,11 @@ import React, { useState } from 'react';
 import { useDashboard } from '../../contexts/DashboardContext';
 
 const DraggableWidget = ({ id, children, className = '' }) => {
-  const { editMode, wiggleWidget, triggerWiggle, setSidebarOpen, moveWidget } = useDashboard();
+  const { editMode, wiggleWidget, triggerWiggle, moveWidget } = useDashboard();
   const [isDragging, setIsDragging] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
   const isWiggling = wiggleWidget === id;
-
-  const handleCardClick = (e) => {
-    if (editMode) return;
-    
-    const target = e.target;
-    const isInteractive = target.tagName === 'BUTTON' || 
-                         target.tagName === 'INPUT' || 
-                         target.tagName === 'A' ||
-                         target.tagName === 'SELECT' ||
-                         target.tagName === 'TEXTAREA' ||
-                         target.closest('button, input, a, select, textarea, [role="button"], [onclick]');
-    
-    if (!isInteractive) {
-      e.stopPropagation();
-      setSidebarOpen(true);
-    }
-  };
 
   const handleCornerClick = (e) => {
     if (!editMode) {
@@ -80,7 +63,6 @@ const DraggableWidget = ({ id, children, className = '' }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={handleCardClick}
       className={`
         relative transition-all duration-300
         ${className}
@@ -115,7 +97,7 @@ const DraggableWidget = ({ id, children, className = '' }) => {
       {/* Edit indicator */}
       {editMode && (
         <div className="absolute -top-3 -left-3 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold z-20 shadow-lg">
-          ⬍ Drag
+          ⬅ Drag
         </div>
       )}
 

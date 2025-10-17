@@ -1,12 +1,14 @@
 // src/components/layout/Header.jsx
 import React from 'react';
-import { Calendar, Target, Settings, Sun, Moon, Coffee, LogOut } from 'lucide-react';
+import { Calendar, Edit, Settings, Sun, Moon, Coffee, LogOut } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDashboard } from '../../contexts/DashboardContext';
 
 const Header = ({ onOpenSettings }) => {
   const { t } = useLanguage();
   const { logout, user } = useAuth();
+  const { setSidebarOpen } = useDashboard();
   
   return (
     <div className="max-w-7xl mx-auto mb-8">
@@ -31,8 +33,12 @@ const Header = ({ onOpenSettings }) => {
           <button className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg">
             <Calendar className="w-5 h-5 text-amber-700" />
           </button>
-          <button className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg">
-            <Target className="w-5 h-5 text-amber-700" />
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg"
+            title="Ouvrir le menu d'édition"
+          >
+            <Edit className="w-5 h-5 text-amber-700" />
           </button>
           <button 
             onClick={onOpenSettings}
