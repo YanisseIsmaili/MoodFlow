@@ -1,4 +1,4 @@
-// src/pages/Dashboard.jsx
+// src/page/Dashboard.jsx
 import React, { useRef, useState } from 'react';
 import { useDashboard } from '../contexts/DashboardContext';
 import Header from '../components/layout/Header';
@@ -12,7 +12,6 @@ import FocusTimer from '../components/dashboard/FocusTimer';
 import QuickActions from '../components/dashboard/QuickActions';
 import MoodBoard from '../components/dashboard/MoodBoard';
 import CalendarWidget from '../components/dashboard/CalendarWidget';
-import BreathingExercise from '../components/dashboard/BreathingExercise';  // ⬅️ AJOUTÉ
 
 const Dashboard = ({ onOpenSettings }) => {
   const { widgets, editMode, WIDGET_TYPES, toggleWidget, setSidebarOpen } = useDashboard();
@@ -33,11 +32,9 @@ const Dashboard = ({ onOpenSettings }) => {
     .filter(w => w.visible)
     .sort((a, b) => a.order - b.order);
 
-  // Long press handlers - UNIQUEMENT sur le fond du dashboard
+  // Long press handlers
   const handleTouchStart = (e) => {
-    // Ignorer si clic sur un élément no-long-press ou sur une carte widget
-    if (e.target.closest('.no-long-press') || e.target.closest('.widget-card')) return;
-    
+    if (e.target.closest('.no-long-press')) return;
     longPressTimer.current = setTimeout(() => {
       setSidebarOpen(true);
     }, 800);
@@ -50,9 +47,7 @@ const Dashboard = ({ onOpenSettings }) => {
   };
 
   const handleMouseDown = (e) => {
-    // Ignorer si clic sur un élément no-long-press ou sur une carte widget
-    if (e.target.closest('.no-long-press') || e.target.closest('.widget-card')) return;
-    
+    if (e.target.closest('.no-long-press')) return;
     longPressTimer.current = setTimeout(() => {
       setSidebarOpen(true);
     }, 800);
@@ -107,8 +102,6 @@ const Dashboard = ({ onOpenSettings }) => {
         return <MoodBoard />;
       case WIDGET_TYPES.CALENDAR:
         return <CalendarWidget />;
-      case WIDGET_TYPES.BREATHING:  // ⬅️ AJOUTÉ
-        return <BreathingExercise />;
       default:
         return null;
     }
@@ -151,9 +144,9 @@ const Dashboard = ({ onOpenSettings }) => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
           {visibleWidgets.map((widget) => (
-            <div key={widget.id} className={`${getWidgetClass(widget.id)} flex widget-card`}>
+            <div key={widget.id} className={`${getWidgetClass(widget.id)} flex`}>
               <DraggableWidget id={widget.id} className="w-full">
                 {renderWidget(widget.id)}
               </DraggableWidget>
