@@ -11,7 +11,8 @@ const WIDGET_INFO = {
   'quick-actions': { name: 'Quick Actions', icon: '⚡' },
   'mood-board': { name: 'Interactive Mood Board', icon: '📌' },
   'calendar': { name: 'Calendar', icon: '📅' },
-  'breathing': { name: 'Exercice de Respiration', icon: '🌬️' }  // ⬅️ AJOUTÉ
+  'breathing': { name: 'Exercice de Respiration', icon: '🌬️' },
+  'sudoku': { name: 'Sudoku', icon: '🎲' }
 };
 
 const WidgetSidebar = () => {

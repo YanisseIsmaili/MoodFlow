@@ -12,7 +12,8 @@ import FocusTimer from '../components/dashboard/FocusTimer';
 import QuickActions from '../components/dashboard/QuickActions';
 import MoodBoard from '../components/dashboard/MoodBoard';
 import CalendarWidget from '../components/dashboard/CalendarWidget';
-import BreathingExercise from '../components/dashboard/BreathingExercise';  // ⬅️ AJOUTÉ
+import BreathingExercise from '../components/dashboard/BreathingExercise';
+import SudokuGame from '../components/dashboard/SudokuGame';
 
 const Dashboard = ({ onOpenSettings }) => {
   const { widgets, editMode, WIDGET_TYPES, toggleWidget, setSidebarOpen } = useDashboard();
@@ -109,6 +110,8 @@ const Dashboard = ({ onOpenSettings }) => {
         return <CalendarWidget />;
       case WIDGET_TYPES.BREATHING:  // ⬅️ AJOUTÉ
         return <BreathingExercise />;
+      case WIDGET_TYPES.SUDOKU:
+        return <SudokuGame />;
       default:
         return null;
     }

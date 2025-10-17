@@ -18,7 +18,8 @@ const WIDGET_TYPES = {
   QUICK_ACTIONS: 'quick-actions',
   MOOD_BOARD: 'mood-board',
   CALENDAR: 'calendar',
-  BREATHING: 'breathing'
+  BREATHING: 'breathing',
+  SUDOKU: 'sudoku'
 };
 
 const DEFAULT_WIDGETS = [
@@ -30,7 +31,8 @@ const DEFAULT_WIDGETS = [
   { id: WIDGET_TYPES.QUICK_ACTIONS, visible: true, order: 5 },
   { id: WIDGET_TYPES.MOOD_BOARD, visible: true, order: 6 },
   { id: WIDGET_TYPES.CALENDAR, visible: true, order: 7 },
-  { id: WIDGET_TYPES.BREATHING, visible: true, order: 8 }
+  { id: WIDGET_TYPES.BREATHING, visible: true, order: 8 },
+  { id: WIDGET_TYPES.SUDOKU, visible: false, order: 9 }
 ];
 
 export const DashboardProvider = ({ children }) => {
