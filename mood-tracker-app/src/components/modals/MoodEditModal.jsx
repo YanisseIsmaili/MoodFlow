@@ -4,6 +4,7 @@ import { Heart, Calendar, X, Save } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { MOOD_STATES } from '../../constants/moods';
+import { ACTIVITY_KEYS, getActivityLabel, ACTIVITIES } from '../../constants/activities';
 import apiService from '../../services/api';
 
 const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory }) => {
@@ -58,33 +59,8 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
     }
   ];
 
-  const activities = language === 'fr' ? [
-    '💼 Travail',
-    '📚 Études',
-    '🏃 Sport',
-    '👥 Amis',
-    '👨‍👩‍👧‍👦 Famille',
-    '🎮 Jeux',
-    '📺 Séries',
-    '🎵 Musique',
-    '🍳 Cuisine',
-    '🧘 Méditation',
-    '🛏️ Repos',
-    '🎨 Créativité'
-  ] : [
-    '💼 Work',
-    '📚 Study',
-    '🏃 Exercise',
-    '👥 Friends',
-    '👨‍👩‍👧‍👦 Family',
-    '🎮 Gaming',
-    '📺 TV Shows',
-    '🎵 Music',
-    '🍳 Cooking',
-    '🧘 Meditation',
-    '🛏️ Rest',
-    '🎨 Creativity'
-  ];
+  // Use activity keys (matching backend enum) and localized labels
+  const activities = ACTIVITY_KEYS.map(key => ({ key, label: getActivityLabel(key, language) }));
 
   // Charger les données existantes pour cette date
   useEffect(() => {
@@ -105,7 +81,20 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
         console.log('✅ Humeur trouvée:', existingMood);
         setSelectedMood(existingMood.state || existingMood.mood);
         setMoodNote(existingMood.description || existingMood.note || '');
-        setSelectedActivities(existingMood.activities || []);
+
+        // Normalize activities: backend may return array of objects [{ label: 'WORK' }] or array of strings
+        const rawActivities = existingMood.activities || [];
+        const normalized = rawActivities.map(a => {
+          if (!a) return null;
+          if (typeof a === 'string') return a; // already a key
+          // Might be object with label or key
+          if (a.label) return a.label;
+          if (a.key) return a.key;
+          return null;
+        }).filter(Boolean);
+
+        // Filter to known keys
+        setSelectedActivities(normalized.filter(k => ACTIVITY_KEYS.includes(k)));
       } else {
         console.log('❌ Aucune humeur trouvée, réinitialisation');
         setSelectedMood(null);
@@ -142,7 +131,8 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
       const moodData = {
         date: dateStr,
         state: selectedMood,
-        description: moodNote || undefined
+        description: moodNote || undefined,
+        activities: selectedActivities.length ? selectedActivities : undefined
       };
 
       // Envoyer à l'API
@@ -281,17 +271,17 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
                   ⚡ {language === 'fr' ? 'Qu\'as-tu fait ?' : 'What did you do?'}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {activities.map(activity => (
+                  {activities.map(({ key, label }) => (
                     <button
-                      key={activity}
-                      onClick={() => toggleActivity(activity)}
+                      key={key}
+                      onClick={() => toggleActivity(key)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        selectedActivities.includes(activity)
+                        selectedActivities.includes(key)
                           ? `bg-gradient-to-r ${selectedMoodData.color} text-white shadow-lg scale-105`
                           : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
                       }`}
                     >
-                      {activity}
+                      {label}
                     </button>
                   ))}
                 </div>
