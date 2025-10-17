@@ -13,9 +13,11 @@ import MoodEditModal from '../modals/MoodEditModal';
 const CalendarWidget = () => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const [selectedMonth, setSelectedMonth] = useState(9); // October
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedDay, setSelectedDay] = useState(16);
+  
+  const today = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedDay, setSelectedDay] = useState(1); // Commencer au jour 1 du mois
   const [events, setEvents] = useState(() => getFromStorage('calendarEvents', {}));
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState('');
@@ -25,6 +27,7 @@ const CalendarWidget = () => {
   const [moodHistory, setMoodHistory] = useState([]);
   const [isLoadingMoods, setIsLoadingMoods] = useState(false);
 
+  // Sauvegarder les événements
   useEffect(() => {
     saveToStorage('calendarEvents', events);
   }, [events]);
@@ -36,16 +39,16 @@ const CalendarWidget = () => {
       
       setIsLoadingMoods(true);
       try {
-        // Utiliser le même calcul que getMoodForDay pour la cohérence
         const year = selectedYear;
         const month = (selectedMonth + 1).toString().padStart(2, '0');
         const monthDate = `${year}-${month}-01`;
         
+        console.log('📅 Chargement humeurs pour:', monthDate);
         const moods = await apiService.getMoodsByUserAndMonth(user.username, monthDate);
+        console.log('✅ Humeurs chargées:', moods);
         setMoodHistory(moods);
       } catch (error) {
-        console.error('Erreur lors du chargement des humeurs:', error);
-        // Fallback sur localStorage en cas d'erreur
+        console.error('❌ Erreur chargement humeurs:', error);
         setMoodHistory(getFromStorage('moodHistory', []));
       } finally {
         setIsLoadingMoods(false);
@@ -58,15 +61,20 @@ const CalendarWidget = () => {
   // Fonction pour vérifier si une date est dans le futur
   const isDateInFuture = (day) => {
     const selectedDate = new Date(selectedYear, selectedMonth, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
-    return selectedDate > today;
+    return selectedDate > todayDate;
   };
 
   const days = getDaysInMonth(selectedMonth, selectedYear);
   const firstDay = getFirstDayOfMonth(selectedMonth, selectedYear);
   const emptyDays = Array(firstDay).fill(null);
+
+  console.log('📆 Mois:', selectedMonth, 'Année:', selectedYear);
+  console.log('📆 Nombre de jours dans le mois:', days);
+  console.log('📆 Premier jour de la semaine:', firstDay);
+  console.log('📆 Jours vides:', emptyDays.length);
 
   const handlePrevMonth = () => {
     if (selectedMonth === 0) {
@@ -95,9 +103,8 @@ const CalendarWidget = () => {
   };
 
   const getMoodForDay = (day) => {
-    // Créer la date de façon plus fiable pour éviter les problèmes de fuseau horaire
     const year = selectedYear;
-    const month = (selectedMonth + 1).toString().padStart(2, '0'); // +1 car selectedMonth est 0-based
+    const month = (selectedMonth + 1).toString().padStart(2, '0');
     const dayStr = day.toString().padStart(2, '0');
     const dateStr = `${year}-${month}-${dayStr}`;
     
@@ -108,18 +115,25 @@ const CalendarWidget = () => {
     if (!mood || !mood.state) return null;
     
     const moodConfig = {
-      [MOOD_STATES.BAD]: { emoji: '�', color: 'bg-red-400' },
-      [MOOD_STATES.MEH]: { emoji: '�', color: 'bg-orange-400' },
+      [MOOD_STATES.BAD]: { emoji: '😞', color: 'bg-red-400' },
+      [MOOD_STATES.MEH]: { emoji: '😕', color: 'bg-orange-400' },
       [MOOD_STATES.OK]: { emoji: '😐', color: 'bg-yellow-400' },
-      [MOOD_STATES.GOOD]: { emoji: '�', color: 'bg-blue-400' },
-      [MOOD_STATES.GREAT]: { emoji: '�', color: 'bg-green-400' }
+      [MOOD_STATES.GOOD]: { emoji: '😊', color: 'bg-blue-400' },
+      [MOOD_STATES.GREAT]: { emoji: '😄', color: 'bg-green-400' }
     };
     
     return moodConfig[mood.state] || null;
   };
 
   const getMoodLabelForCalendar = (moodState) => {
-    return MOOD_LABELS[language]?.[moodState] || moodState;
+    const labels = {
+      [MOOD_STATES.GREAT]: language === 'fr' ? 'Excellent' : 'Great',
+      [MOOD_STATES.GOOD]: language === 'fr' ? 'Bien' : 'Good',
+      [MOOD_STATES.OK]: language === 'fr' ? 'Correct' : 'OK',
+      [MOOD_STATES.MEH]: language === 'fr' ? 'Bof' : 'Meh',
+      [MOOD_STATES.BAD]: language === 'fr' ? 'Mauvais' : 'Bad'
+    };
+    return labels[moodState] || moodState;
   };
 
   const addEvent = () => {
@@ -152,7 +166,6 @@ const CalendarWidget = () => {
 
   // Gestion du double-clic pour éditer une humeur
   const handleDayDoubleClick = (day) => {
-    // Empêcher l'édition des jours futurs
     if (isDateInFuture(day)) {
       alert(
         language === 'fr' 
@@ -168,7 +181,6 @@ const CalendarWidget = () => {
     setShowMoodEditModal(true);
   };
 
-  // Gestion du simple clic
   const handleDayClick = (day) => {
     setSelectedDay(day);
   };
@@ -188,11 +200,12 @@ const CalendarWidget = () => {
 
   return (
     <div className="h-full bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-amber-200">
+      {/* Header Navigation */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <button
             onClick={handlePrevMonth}
-            className="text-amber-700 hover:text-amber-900 text-2xl font-bold"
+            className="text-amber-700 hover:text-amber-900 text-2xl font-bold transition-colors"
           >
             ‹
           </button>
@@ -204,7 +217,7 @@ const CalendarWidget = () => {
           </div>
           <button
             onClick={handleNextMonth}
-            className="text-amber-700 hover:text-amber-900 text-2xl font-bold"
+            className="text-amber-700 hover:text-amber-900 text-2xl font-bold transition-colors"
           >
             ›
           </button>
@@ -239,6 +252,7 @@ const CalendarWidget = () => {
         </p>
       </div>
 
+      {/* Formulaire ajout événement */}
       {showAddEvent && (
         <div className="mb-4 p-4 bg-white rounded-xl border-2 border-amber-300">
           <div className="flex justify-between items-center mb-3">
@@ -274,17 +288,25 @@ const CalendarWidget = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-7 gap-2">
+      {/* Grille calendrier */}
+      <div className="grid grid-cols-7 gap-2 mb-4">
+        {/* En-têtes jours */}
         {dayNames.map(day => (
-          <div key={day} className="text-center font-semibold text-amber-700 py-2">
+          <div key={day} className="text-center font-semibold text-amber-700 py-2 text-sm">
             {day}
           </div>
         ))}
+        
+        {/* Jours vides */}
         {emptyDays.map((_, i) => (
           <div key={`empty-${i}`} className="aspect-square"></div>
         ))}
-        {days.map(day => {
-          const hasEvents = getDayEvents(day).length > 0;
+        
+        {/* Jours du mois */}
+        {[...Array(days)].map((_, index) => {
+          const day = index + 1;
+          const dayEvents = getDayEvents(day);
+          const hasEvents = dayEvents.length > 0;
           const dayMood = getMoodForDay(day);
           const moodDisplay = dayMood ? getMoodDisplay(dayMood) : null;
           const isFuture = isDateInFuture(day);
@@ -298,8 +320,6 @@ const CalendarWidget = () => {
               className={`group aspect-square flex flex-col items-center justify-center rounded-xl transition-all relative ${
                 isFuture
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                  : day === selectedDay
-                  ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white font-bold shadow-lg scale-110 ring-2 ring-orange-600' 
                   : moodDisplay
                   ? `${moodDisplay.color} text-white hover:scale-105 hover:ring-2 hover:ring-offset-1 hover:shadow-xl cursor-pointer`
                   : 'bg-amber-100/50 hover:bg-amber-200 text-amber-900 hover:scale-105 hover:shadow-md cursor-pointer'
@@ -316,7 +336,7 @@ const CalendarWidget = () => {
                 <span className="text-xl mt-1">{moodDisplay.emoji}</span>
               )}
               
-              {/* Icône d'édition au survol - cachée pour les jours futurs */}
+              {/* Icône d'édition au survol */}
               {!isFuture && (
                 <div className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                   day === selectedDay ? 'text-white' : 'text-amber-700'
@@ -325,16 +345,17 @@ const CalendarWidget = () => {
                 </div>
               )}
               
-              {/* Icône de cadenas pour les jours futurs */}
+              {/* Icône cadenas pour jours futurs */}
               {isFuture && (
                 <div className="absolute top-1 right-1 text-gray-400">
                   <Lock className="w-3 h-3" />
                 </div>
               )}
               
+              {/* Indicateurs d'événements */}
               {hasEvents && !isFuture && (
                 <div className="absolute bottom-1 flex gap-0.5">
-                  {getDayEvents(day).slice(0, 3).map((_, idx) => (
+                  {dayEvents.slice(0, 3).map((_, idx) => (
                     <div key={idx} className="w-1 h-1 bg-blue-600 rounded-full"></div>
                   ))}
                 </div>
@@ -344,6 +365,7 @@ const CalendarWidget = () => {
         })}
       </div>
 
+      {/* Section jour sélectionné */}
       <div className="mt-6 p-4 bg-amber-100 rounded-2xl">
         <div className="flex justify-between items-center mb-2">
           <div className="font-semibold text-amber-900">
@@ -353,7 +375,7 @@ const CalendarWidget = () => {
             <div className="flex items-center gap-2">
               <span className="text-xs bg-amber-300 text-amber-900 px-2 py-1 rounded-full">
                 {selectedDayEvents.length} {selectedDayEvents.length !== 1 ? t('events') : t('event')}
-                {selectedDayMood && ' • ' + getMoodLabelForCalendar(selectedDayMood.mood)}
+                {selectedDayMood && ' • ' + getMoodLabelForCalendar(selectedDayMood.state)}
               </span>
               {!isDateInFuture(selectedDay) && (
                 <button
@@ -368,6 +390,7 @@ const CalendarWidget = () => {
           )}
         </div>
 
+        {/* Affichage humeur */}
         {selectedDayMood && (
           <div className="mb-4 p-3 bg-white rounded-lg">
             <div className="flex items-center gap-3">
@@ -379,23 +402,12 @@ const CalendarWidget = () => {
                 {selectedDayMood.description && (
                   <p className="text-sm text-gray-600 mt-1">{selectedDayMood.description}</p>
                 )}
-                {selectedDayMood.activities && selectedDayMood.activities.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {selectedDayMood.activities.map((activity, idx) => (
-                      <span 
-                        key={idx} 
-                        className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full"
-                      >
-                        {activity}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
           </div>
         )}
 
+        {/* Liste événements */}
         {selectedDayEvents.length > 0 ? (
           <div className="space-y-2">
             <div className="font-semibold text-amber-900 text-sm">
@@ -412,7 +424,7 @@ const CalendarWidget = () => {
                 </div>
                 <button
                   onClick={() => deleteEvent(selectedDay, event.id)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -446,28 +458,29 @@ const CalendarWidget = () => {
         )}
       </div>
 
+      {/* Légende */}
       <div className="mt-4 pt-4 border-t border-amber-200">
         <div className="text-xs text-amber-700 font-semibold mb-2">{t('legend')}:</div>
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-green-400 rounded"></div>
-            <span className="text-amber-700">{t('amazing')}</span>
+            <span className="text-amber-700">{language === 'fr' ? 'Excellent' : 'Great'}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-blue-400 rounded"></div>
-            <span className="text-amber-700">{t('good')}</span>
+            <span className="text-amber-700">{language === 'fr' ? 'Bien' : 'Good'}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-yellow-400 rounded"></div>
-            <span className="text-amber-700">{t('okay')}</span>
+            <span className="text-amber-700">{language === 'fr' ? 'Correct' : 'OK'}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-orange-400 rounded"></div>
-            <span className="text-amber-700">{t('sad')}</span>
+            <span className="text-amber-700">{language === 'fr' ? 'Bof' : 'Meh'}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-red-400 rounded"></div>
-            <span className="text-amber-700">{t('difficult')}</span>
+            <span className="text-amber-700">{language === 'fr' ? 'Mauvais' : 'Bad'}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
@@ -486,8 +499,24 @@ const CalendarWidget = () => {
         onClose={() => {
           setShowMoodEditModal(false);
           setEditingDate(null);
+          // Recharger les humeurs après fermeture du modal
+          const reloadMoods = async () => {
+            if (!user?.username) return;
+            try {
+              const year = selectedYear;
+              const month = (selectedMonth + 1).toString().padStart(2, '0');
+              const monthDate = `${year}-${month}-01`;
+              const moods = await apiService.getMoodsByUserAndMonth(user.username, monthDate);
+              setMoodHistory(moods);
+            } catch (error) {
+              console.error('❌ Erreur rechargement:', error);
+            }
+          };
+          reloadMoods();
         }}
         date={editingDate}
+        moodHistory={moodHistory}
+        setMoodHistory={setMoodHistory}
       />
     </div>
   );

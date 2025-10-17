@@ -9,8 +9,9 @@ const WIDGET_INFO = {
   'todays-focus': { name: "Today's Focus", icon: '⚡' },
   'focus-timer': { name: 'Pomodoro Timer', icon: '⏰' },
   'quick-actions': { name: 'Quick Actions', icon: '⚡' },
-  'mood-board': { name: 'Interactive Mood Board', icon: '📝' },
-  'calendar': { name: 'Calendar', icon: '📅' }
+  'mood-board': { name: 'Interactive Mood Board', icon: '📌' },
+  'calendar': { name: 'Calendar', icon: '📅' },
+  'breathing': { name: 'Exercice de Respiration', icon: '🌬️' }  // ⬅️ AJOUTÉ
 };
 
 const WidgetSidebar = () => {
