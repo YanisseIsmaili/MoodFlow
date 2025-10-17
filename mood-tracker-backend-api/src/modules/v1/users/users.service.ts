@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
@@ -30,8 +30,8 @@ export class UsersService {
         // Vérification email / username existants
         const existingUser = await this.userRepository.findOne({
             where: [
-            { email: createUserDto.email },
-            { username: createUserDto.username },
+                { email: createUserDto.email },
+                { username: createUserDto.username },
             ],
         });
 
@@ -76,6 +76,18 @@ export class UsersService {
 
     async findByUuid(uuid: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { uuid } });
+    }
+
+    async deleteUserByUuid(uuid: string): Promise<boolean> {
+        const user = await this.userRepository.findOne({ where: { uuid } });
+
+        if (!user) {
+            return false;
+        }
+
+        await this.userRepository.remove(user);
+
+        return true;
     }
 
 }
