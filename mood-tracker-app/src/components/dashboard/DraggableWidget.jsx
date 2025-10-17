@@ -1,6 +1,6 @@
 // src/components/dashboard/DraggableWidget.jsx
 import React, { useState } from 'react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useDashboard } from '../../contexts/DashboardContext';
 
 const DraggableWidget = ({ id, children, className = '' }) => {
   const { editMode, wiggleWidget, triggerWiggle, setSidebarOpen, moveWidget } = useDashboard();

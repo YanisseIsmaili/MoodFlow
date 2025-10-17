@@ -22,6 +22,10 @@ export class UsersService {
         return this.userRepository.findOne({ where: { username } });
     }
 
+    async findByEmail(email: string): Promise<User | null> {
+        return this.userRepository.findOne({ where: { email } });
+    }
+
     async create(createUserDto: CreateUserDto): Promise<{ message: string; user: User }> {
         // Vérification email / username existants
         const existingUser = await this.userRepository.findOne({

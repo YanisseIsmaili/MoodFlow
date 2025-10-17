@@ -5,10 +5,14 @@ import { getDaysInMonth, getFirstDayOfMonth } from '../../utils/dateUtils';
 import { MONTH_NAMES, DAY_NAMES } from '../../constants';
 import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { MOOD_STATES, MOOD_LABELS } from '../../constants/moods';
+import apiService from '../../services/api';
 import MoodEditModal from '../modals/MoodEditModal';
 
 const CalendarWidget = () => {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState(9); // October
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedDay, setSelectedDay] = useState(16);
@@ -18,12 +22,38 @@ const CalendarWidget = () => {
   const [newEventTime, setNewEventTime] = useState('10:00');
   const [showMoodEditModal, setShowMoodEditModal] = useState(false);
   const [editingDate, setEditingDate] = useState(null);
-
-  const moodHistory = getFromStorage('moodHistory', []);
+  const [moodHistory, setMoodHistory] = useState([]);
+  const [isLoadingMoods, setIsLoadingMoods] = useState(false);
 
   useEffect(() => {
     saveToStorage('calendarEvents', events);
   }, [events]);
+
+  // Charger les humeurs du mois depuis l'API
+  useEffect(() => {
+    const loadMoodsForMonth = async () => {
+      if (!user?.username) return;
+      
+      setIsLoadingMoods(true);
+      try {
+        // Utiliser le même calcul que getMoodForDay pour la cohérence
+        const year = selectedYear;
+        const month = (selectedMonth + 1).toString().padStart(2, '0');
+        const monthDate = `${year}-${month}-01`;
+        
+        const moods = await apiService.getMoodsByUserAndMonth(user.username, monthDate);
+        setMoodHistory(moods);
+      } catch (error) {
+        console.error('Erreur lors du chargement des humeurs:', error);
+        // Fallback sur localStorage en cas d'erreur
+        setMoodHistory(getFromStorage('moodHistory', []));
+      } finally {
+        setIsLoadingMoods(false);
+      }
+    };
+
+    loadMoodsForMonth();
+  }, [selectedMonth, selectedYear, user?.username]);
 
   // Fonction pour vérifier si une date est dans le futur
   const isDateInFuture = (day) => {
@@ -65,39 +95,31 @@ const CalendarWidget = () => {
   };
 
   const getMoodForDay = (day) => {
-    const dateStr = new Date(selectedYear, selectedMonth, day).toDateString();
+    // Créer la date de façon plus fiable pour éviter les problèmes de fuseau horaire
+    const year = selectedYear;
+    const month = (selectedMonth + 1).toString().padStart(2, '0'); // +1 car selectedMonth est 0-based
+    const dayStr = day.toString().padStart(2, '0');
+    const dateStr = `${year}-${month}-${dayStr}`;
+    
     return moodHistory.find(m => m.date === dateStr);
   };
 
-  const getMoodDisplay = (moodId) => {
-    const moods = {
-      amazing: { emoji: '😄', color: 'bg-green-400' },
-      good: { emoji: '🙂', color: 'bg-blue-400' },
-      okay: { emoji: '😐', color: 'bg-yellow-400' },
-      sad: { emoji: '😔', color: 'bg-orange-400' },
-      bad: { emoji: '😢', color: 'bg-red-400' }
+  const getMoodDisplay = (mood) => {
+    if (!mood || !mood.state) return null;
+    
+    const moodConfig = {
+      [MOOD_STATES.BAD]: { emoji: '�', color: 'bg-red-400' },
+      [MOOD_STATES.MEH]: { emoji: '�', color: 'bg-orange-400' },
+      [MOOD_STATES.OK]: { emoji: '😐', color: 'bg-yellow-400' },
+      [MOOD_STATES.GOOD]: { emoji: '�', color: 'bg-blue-400' },
+      [MOOD_STATES.GREAT]: { emoji: '�', color: 'bg-green-400' }
     };
-    return moods[moodId] || null;
+    
+    return moodConfig[mood.state] || null;
   };
 
-  const getMoodLabelForCalendar = (moodId) => {
-    const labels = {
-      en: {
-        amazing: 'Amazing',
-        good: 'Good',
-        okay: 'Okay',
-        sad: 'Sad',
-        bad: 'Bad'
-      },
-      fr: {
-        amazing: 'Super Bien',
-        good: 'Bien',
-        okay: 'Normal',
-        sad: 'Triste',
-        bad: 'Mal'
-      }
-    };
-    return labels[language][moodId] || moodId;
+  const getMoodLabelForCalendar = (moodState) => {
+    return MOOD_LABELS[language]?.[moodState] || moodState;
   };
 
   const addEvent = () => {
@@ -264,7 +286,7 @@ const CalendarWidget = () => {
         {days.map(day => {
           const hasEvents = getDayEvents(day).length > 0;
           const dayMood = getMoodForDay(day);
-          const moodDisplay = dayMood ? getMoodDisplay(dayMood.mood) : null;
+          const moodDisplay = dayMood ? getMoodDisplay(dayMood) : null;
           const isFuture = isDateInFuture(day);
           
           return (
@@ -349,13 +371,13 @@ const CalendarWidget = () => {
         {selectedDayMood && (
           <div className="mb-4 p-3 bg-white rounded-lg">
             <div className="flex items-center gap-3">
-              <span className="text-4xl">{getMoodDisplay(selectedDayMood.mood)?.emoji}</span>
+              <span className="text-4xl">{getMoodDisplay(selectedDayMood)?.emoji}</span>
               <div className="flex-1">
                 <div className="font-semibold text-gray-800">
-                  {t('mood')} : {getMoodLabelForCalendar(selectedDayMood.mood)}
+                  {t('mood')} : {getMoodLabelForCalendar(selectedDayMood.state)}
                 </div>
-                {selectedDayMood.note && (
-                  <p className="text-sm text-gray-600 mt-1">{selectedDayMood.note}</p>
+                {selectedDayMood.description && (
+                  <p className="text-sm text-gray-600 mt-1">{selectedDayMood.description}</p>
                 )}
                 {selectedDayMood.activities && selectedDayMood.activities.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
