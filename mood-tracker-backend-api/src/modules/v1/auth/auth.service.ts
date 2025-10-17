@@ -4,6 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../users/dtos/login.dto';
 import { CreateUserDto } from '../users/dtos/create-user.dto';
+import { plainToInstance } from 'class-transformer';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -32,10 +34,13 @@ export class AuthService {
         const payload = { username: user.username, sub: user.uuid };
         const access_token = this.jwtService.sign(payload);
 
+        // Transformer l'utilisateur pour exclure les champs non exposés (comme password)
+        const safeUser = plainToInstance(User, user, { excludeExtraneousValues: true });
+
         return {
             message: 'Login successful',
             access_token,
-            user,
+            safeUser,
         };
     }
 

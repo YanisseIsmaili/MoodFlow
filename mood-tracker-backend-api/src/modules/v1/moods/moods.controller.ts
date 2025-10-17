@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query, UseGuards, Request as NestRequest } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query, UseGuards, Request as NestRequest, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { MoodsService } from './moods.service';
 import { Mood } from './mood.entity';
 import { CreateMoodDto } from './dtos/create-mood.dto';
@@ -21,7 +21,7 @@ export class MoodsController {
         return { count: moods.length, moods };
     }
 
-    @Get(':username')
+    @Get('month')
     @UseGuards(JwtAuthGuard)
     async findByUserAndMonth(
         @Query('date') date: string,
@@ -46,4 +46,20 @@ export class MoodsController {
         const user = req.user as User;
         return this.moodsService.create(createMoodDto, user);
     }
+
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    async remove(
+        @Param('id') id: number,
+        @NestRequest() req: ExpressRequest
+    ): Promise<{ message: string }> {
+        const user = req.user as User;
+        const deleted = await this.moodsService.deleteMoodById(id, user.uuid);
+
+        if (!deleted) {
+            throw new HttpException('Mood not found', HttpStatus.NOT_FOUND);
+        }
+        return { message: 'Mood deleted successfully' };
+    }
+
 }

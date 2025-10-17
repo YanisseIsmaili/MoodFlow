@@ -5,8 +5,11 @@ import {
     IsOptional,
     IsDateString,
     IsInt,
+    IsArray,
+    ArrayUnique,
 } from 'class-validator';
 import { State } from '../enums/state.enum';
+import { ActivityEnum } from '../../activities/enums/activity.enum';
   
 export class CreateMoodDto {
 
@@ -26,7 +29,13 @@ export class CreateMoodDto {
     // @IsInt({ message: 'User ID must be an integer.' })
     // userId: number; // <- permet de lier l'humeur à un utilisateur
 
-    @IsNotEmpty({ message: 'Username is required.' })
-    username: string; // <- on utilise username à la place de userId
+    // @IsNotEmpty({ message: 'Username is required.' })
+    // username: string; // <- on utilise username à la place de userId
+
+    @IsOptional()
+    @IsArray({ message: 'Activities must be an array.' })
+    @ArrayUnique({ message: 'Duplicate activities are not allowed.' })
+    @IsEnum(ActivityEnum, { each: true, message: `Each activity must be one of: ${Object.values(ActivityEnum).join(', ')}` })
+    activities?: ActivityEnum[]; // tableau optionnel
 
 }

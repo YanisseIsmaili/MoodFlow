@@ -1,0 +1,15 @@
+export enum ActivityEnum {
+    WORK = 'WORK',
+    STUDY = 'STUDY',
+    EXERCISE = 'EXERCISE',
+    FRIENDS = 'FRIENDS',
+    FAMILY = 'FAMILY',
+    GAMING = 'GAMING',
+    TVSHOWS = 'TVSHOWS',
+    MUSIC = 'MUSIC',
+    COOKING = 'COOKING',
+    MEDITATION = 'MEDITATION',
+    REST = 'REST',
+    CREATIVITY = 'CREATIVITY'
+
+}

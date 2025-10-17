@@ -4,9 +4,10 @@ import { MoodsService } from './moods.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Mood } from './mood.entity';
 import { User } from '../users/user.entity';
+import { MoodActivity } from '../activities/moodactivity.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Mood, User])],
+    imports: [TypeOrmModule.forFeature([Mood, User, MoodActivity])],
     controllers: [MoodsController],
     providers: [MoodsService]
 })
