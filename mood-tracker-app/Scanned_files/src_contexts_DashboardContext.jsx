@@ -17,8 +17,7 @@ const WIDGET_TYPES = {
   FOCUS_TIMER: 'focus-timer',
   QUICK_ACTIONS: 'quick-actions',
   MOOD_BOARD: 'mood-board',
-  CALENDAR: 'calendar',
-  BREATHING: 'breathing'
+  CALENDAR: 'calendar'
 };
 
 const DEFAULT_WIDGETS = [
@@ -29,8 +28,7 @@ const DEFAULT_WIDGETS = [
   { id: WIDGET_TYPES.FOCUS_TIMER, visible: true, order: 4 },
   { id: WIDGET_TYPES.QUICK_ACTIONS, visible: true, order: 5 },
   { id: WIDGET_TYPES.MOOD_BOARD, visible: true, order: 6 },
-  { id: WIDGET_TYPES.CALENDAR, visible: true, order: 7 },
-  { id: WIDGET_TYPES.BREATHING, visible: true, order: 8 }
+  { id: WIDGET_TYPES.CALENDAR, visible: true, order: 7 }
 ];
 
 export const DashboardProvider = ({ children }) => {
