@@ -136,6 +136,35 @@ const CalendarWidget = () => {
     return labels[moodState] || moodState;
   };
 
+  // Map activity enum IDs to localized labels with emoji to display under mood summary
+  const ACTIVITY_LABELS = language === 'fr' ? {
+    WORK: '💼 Travail',
+    STUDY: '📚 Études',
+    EXERCISE: '🏃 Sport',
+    FRIENDS: '👥 Amis',
+    FAMILY: '👨‍👩‍👧‍👦 Famille',
+    GAMING: '🎮 Jeux',
+    TVSHOWS: '📺 Séries',
+    MUSIC: '🎵 Musique',
+    COOKING: '🍳 Cuisine',
+    MEDITATION: '🧘 Méditation',
+    REST: '🛏️ Repos',
+    CREATIVITY: '🎨 Créativité'
+  } : {
+    WORK: '💼 Work',
+    STUDY: '📚 Study',
+    EXERCISE: '🏃 Exercise',
+    FRIENDS: '👥 Friends',
+    FAMILY: '👨‍👩‍👧‍👦 Family',
+    GAMING: '🎮 Gaming',
+    TVSHOWS: '📺 TV Shows',
+    MUSIC: '🎵 Music',
+    COOKING: '🍳 Cooking',
+    MEDITATION: '🧘 Meditation',
+    REST: '🛏️ Rest',
+    CREATIVITY: '🎨 Creativity'
+  };
+
   const addEvent = () => {
     if (!newEventTitle.trim()) return;
 
@@ -401,6 +430,34 @@ const CalendarWidget = () => {
                 </div>
                 {selectedDayMood.description && (
                   <p className="text-sm text-gray-600 mt-1">{selectedDayMood.description}</p>
+                )}
+                {/* Activities summary for this mood */}
+                {selectedDayMood.activities && selectedDayMood.activities.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-sm font-medium text-amber-800 mb-1">{language === 'fr' ? 'Activités' : 'Activities'}:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDayMood.activities.map((a, idx) => {
+                        // a can be an id string, an object with id/label, or a label string
+                        let id = null;
+                        if (!a) return null;
+                        if (typeof a === 'string' && /^[A-Z_]+$/.test(a)) id = a;
+                        else if (typeof a === 'object' && a.id) id = a.id;
+                        else if (typeof a === 'string') {
+                          // maybe it's a label; try to match to ACTIVITY_LABELS by value
+                          const foundKey = Object.keys(ACTIVITY_LABELS).find(k => ACTIVITY_LABELS[k] === a || ACTIVITY_LABELS[k] === a.trim());
+                          id = foundKey || null;
+                        }
+
+                        const label = id ? ACTIVITY_LABELS[id] : (typeof a === 'string' ? a : (a.label || ''));
+
+                        return (
+                          <span key={idx} className="px-2 py-1 bg-amber-200 text-amber-900 rounded-full text-xs">
+                            {label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

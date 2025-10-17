@@ -58,32 +58,33 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
     }
   ];
 
+  // Activities use enum-like IDs for API compatibility, labels are localized
   const activities = language === 'fr' ? [
-    '💼 Travail',
-    '📚 Études',
-    '🏃 Sport',
-    '👥 Amis',
-    '👨‍👩‍👧‍👦 Famille',
-    '🎮 Jeux',
-    '📺 Séries',
-    '🎵 Musique',
-    '🍳 Cuisine',
-    '🧘 Méditation',
-    '🛏️ Repos',
-    '🎨 Créativité'
+    { id: 'WORK', label: '💼 Travail' },
+    { id: 'STUDY', label: '📚 Études' },
+    { id: 'EXERCISE', label: '🏃 Sport' },
+    { id: 'FRIENDS', label: '👥 Amis' },
+    { id: 'FAMILY', label: '👨‍👩‍👧‍👦 Famille' },
+    { id: 'GAMING', label: '🎮 Jeux' },
+    { id: 'TVSHOWS', label: '📺 Séries' },
+    { id: 'MUSIC', label: '🎵 Musique' },
+    { id: 'COOKING', label: '🍳 Cuisine' },
+    { id: 'MEDITATION', label: '🧘 Méditation' },
+    { id: 'REST', label: '🛏️ Repos' },
+    { id: 'CREATIVITY', label: '🎨 Créativité' }
   ] : [
-    '💼 Work',
-    '📚 Study',
-    '🏃 Exercise',
-    '👥 Friends',
-    '👨‍👩‍👧‍👦 Family',
-    '🎮 Gaming',
-    '📺 TV Shows',
-    '🎵 Music',
-    '🍳 Cooking',
-    '🧘 Meditation',
-    '🛏️ Rest',
-    '🎨 Creativity'
+    { id: 'WORK', label: '💼 Work' },
+    { id: 'STUDY', label: '📚 Study' },
+    { id: 'EXERCISE', label: '🏃 Exercise' },
+    { id: 'FRIENDS', label: '👥 Friends' },
+    { id: 'FAMILY', label: '👨‍👩‍👧‍👦 Family' },
+    { id: 'GAMING', label: '🎮 Gaming' },
+    { id: 'TVSHOWS', label: '📺 TV Shows' },
+    { id: 'MUSIC', label: '🎵 Music' },
+    { id: 'COOKING', label: '🍳 Cooking' },
+    { id: 'MEDITATION', label: '🧘 Meditation' },
+    { id: 'REST', label: '🛏️ Rest' },
+    { id: 'CREATIVITY', label: '🎨 Creativity' }
   ];
 
   // Charger les données existantes pour cette date
@@ -105,7 +106,35 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
         console.log('✅ Humeur trouvée:', existingMood);
         setSelectedMood(existingMood.state || existingMood.mood);
         setMoodNote(existingMood.description || existingMood.note || '');
-        setSelectedActivities(existingMood.activities || []);
+        // existingMood.activities might be an array of enum IDs or localized labels
+        const existingActivities = existingMood.activities || [];
+        // Normalize to IDs: if items already look like enum IDs (no emoji and all caps), keep; otherwise try to map from labels
+        const activityIds = existingActivities.map(a => {
+          if (!a) return null;
+          // If it's already an enum-like string (e.g., 'WORK'), keep it
+          if (typeof a === 'string' && /^[A-Z_]+$/.test(a)) return a;
+
+          // If it's an object, check common shapes: { id } or { label }
+          if (typeof a === 'object') {
+            if (a.id && typeof a.id === 'string') return a.id;
+            if (a.label && typeof a.label === 'string') {
+              const lab = a.label;
+              if (/^[A-Z_]+$/.test(lab)) return lab;
+              const found = activities.find(act => act.label === lab || act.label === lab.trim());
+              return found ? found.id : null;
+            }
+          }
+
+          // If it's a string label (fallback), try to match by label safely
+          if (typeof a === 'string') {
+            const trimmed = a.trim();
+            const found = activities.find(act => act.label === a || act.label === trimmed);
+            return found ? found.id : null;
+          }
+
+          return null;
+        }).filter(Boolean);
+        setSelectedActivities(activityIds);
       } else {
         console.log('❌ Aucune humeur trouvée, réinitialisation');
         setSelectedMood(null);
@@ -142,8 +171,11 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
       const moodData = {
         date: dateStr,
         state: selectedMood,
-        description: moodNote || undefined
+        description: moodNote || undefined,
+        activities: selectedActivities && selectedActivities.length > 0 ? selectedActivities : undefined
       };
+
+      console.log('📡 Données à envoyer:', moodData);
 
       // Envoyer à l'API
       await apiService.createMood(moodData);
@@ -167,9 +199,9 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
       }
 
       // Recharger la page après un court délai pour voir les changements
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+    //   setTimeout(() => {
+    //     window.location.reload();
+    //   }, 500);
 
       onClose();
     } catch (error) {
@@ -283,15 +315,15 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
                 <div className="grid grid-cols-3 gap-2">
                   {activities.map(activity => (
                     <button
-                      key={activity}
-                      onClick={() => toggleActivity(activity)}
+                      key={activity.id}
+                      onClick={() => toggleActivity(activity.id)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        selectedActivities.includes(activity)
+                        selectedActivities.includes(activity.id)
                           ? `bg-gradient-to-r ${selectedMoodData.color} text-white shadow-lg scale-105`
                           : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
                       }`}
                     >
-                      {activity}
+                      {activity.label}
                     </button>
                   ))}
                 </div>
