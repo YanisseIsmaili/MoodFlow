@@ -1,54 +1,58 @@
 // src/components/modals/MoodEditModal.jsx
 import React, { useState, useEffect } from 'react';
-import { X, Save, Heart, Calendar } from 'lucide-react';
-import { saveToStorage, getFromStorage } from '../../utils/storageUtils';
+import { Heart, Calendar, X, Save } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { MOOD_STATES } from '../../constants/moods';
+import apiService from '../../services/api';
 
-const MoodEditModal = ({ isOpen, onClose, date }) => {
-  const { t, language } = useLanguage();
-  const [moodHistory, setMoodHistory] = useState(() => getFromStorage('moodHistory', []));
+const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory }) => {
+  const { language } = useLanguage();
+  const { user } = useAuth();
   const [selectedMood, setSelectedMood] = useState(null);
   const [moodNote, setMoodNote] = useState('');
   const [selectedActivities, setSelectedActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const moods = [
     { 
-      id: 'amazing', 
+      id: MOOD_STATES.GREAT, 
       emoji: '😄', 
-      label: language === 'fr' ? 'Super Bien' : 'Amazing', 
+      label: language === 'fr' ? 'Excellent' : 'Great', 
       color: 'from-green-400 to-emerald-500',
       bgColor: 'bg-green-100',
       textColor: 'text-green-800'
     },
     { 
-      id: 'good', 
-      emoji: '🙂', 
+      id: MOOD_STATES.GOOD, 
+      emoji: '😊', 
       label: language === 'fr' ? 'Bien' : 'Good', 
       color: 'from-blue-400 to-cyan-500',
       bgColor: 'bg-blue-100',
       textColor: 'text-blue-800'
     },
     { 
-      id: 'okay', 
+      id: MOOD_STATES.OK, 
       emoji: '😐', 
-      label: language === 'fr' ? 'Normal' : 'Okay', 
+      label: language === 'fr' ? 'Correct' : 'OK', 
       color: 'from-yellow-400 to-amber-500',
       bgColor: 'bg-yellow-100',
       textColor: 'text-yellow-800'
     },
     { 
-      id: 'sad', 
-      emoji: '😔', 
-      label: language === 'fr' ? 'Triste' : 'Sad', 
-      color: 'from-orange-400 to-red-500',
+      id: MOOD_STATES.MEH, 
+      emoji: '😕', 
+      label: language === 'fr' ? 'Bof' : 'Meh', 
+      color: 'from-orange-400 to-orange-500',
       bgColor: 'bg-orange-100',
       textColor: 'text-orange-800'
     },
     { 
-      id: 'bad', 
-      emoji: '😢', 
-      label: language === 'fr' ? 'Mal' : 'Bad', 
-      color: 'from-red-400 to-pink-500',
+      id: MOOD_STATES.BAD, 
+      emoji: '😞', 
+      label: language === 'fr' ? 'Mauvais' : 'Bad', 
+      color: 'from-red-400 to-red-500',
       bgColor: 'bg-red-100',
       textColor: 'text-red-800'
     }
@@ -85,13 +89,25 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
   // Charger les données existantes pour cette date
   useEffect(() => {
     if (date && isOpen) {
-      const existingMood = moodHistory.find(m => m.date === date);
+      // Convertir la date au format YYYY-MM-DD
+      const dateObj = new Date(date);
+      const year = dateObj.getFullYear();
+      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
+      console.log('🔍 Recherche humeur pour:', dateStr);
+      console.log('📚 Dans historique:', moodHistory);
+      
+      const existingMood = moodHistory.find(m => m.date === dateStr);
+      
       if (existingMood) {
-        setSelectedMood(existingMood.mood);
-        setMoodNote(existingMood.note || '');
+        console.log('✅ Humeur trouvée:', existingMood);
+        setSelectedMood(existingMood.state || existingMood.mood);
+        setMoodNote(existingMood.description || existingMood.note || '');
         setSelectedActivities(existingMood.activities || []);
       } else {
-        // Réinitialiser pour une nouvelle date
+        console.log('❌ Aucune humeur trouvée, réinitialisation');
         setSelectedMood(null);
         setMoodNote('');
         setSelectedActivities([]);
@@ -99,32 +115,70 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
     }
   }, [date, isOpen, moodHistory]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedMood) {
-      alert(language === 'fr' ? 'Veuillez sélectionner une humeur' : 'Please select a mood');
+      setError(language === 'fr' ? 'Veuillez sélectionner une humeur' : 'Please select a mood');
       return;
     }
 
-    const newMoodEntry = {
-      date: date,
-      mood: selectedMood,
-      note: moodNote,
-      activities: selectedActivities,
-      timestamp: new Date().toISOString()
-    };
+    if (!user?.username) {
+      setError(language === 'fr' ? 'Vous devez être connecté' : 'You must be logged in');
+      return;
+    }
 
-    // Supprimer l'ancienne entrée pour cette date si elle existe
-    const updatedHistory = moodHistory.filter(m => m.date !== date);
-    updatedHistory.unshift(newMoodEntry);
-    
-    // Garder seulement les 30 derniers jours
-    const last30Days = updatedHistory.slice(0, 30);
-    
-    setMoodHistory(last30Days);
-    saveToStorage('moodHistory', last30Days);
-    
-    // Fermer le modal
-    onClose();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Convertir la date au format YYYY-MM-DD
+      const dateObj = new Date(date);
+      const year = dateObj.getFullYear();
+      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+
+      console.log('💾 Sauvegarde humeur pour:', dateStr);
+
+      const moodData = {
+        date: dateStr,
+        state: selectedMood,
+        description: moodNote || undefined,
+        username: user.username
+      };
+
+      // Envoyer à l'API
+      await apiService.createMood(moodData);
+
+      console.log('✅ Humeur sauvegardée dans la DB');
+
+      // Mettre à jour l'historique local
+      const newMoodEntry = {
+        date: dateStr,
+        state: selectedMood,
+        description: moodNote,
+        activities: selectedActivities,
+        timestamp: new Date().toISOString()
+      };
+
+      const updatedHistory = moodHistory.filter(m => m.date !== dateStr);
+      updatedHistory.unshift(newMoodEntry);
+      
+      if (setMoodHistory) {
+        setMoodHistory(updatedHistory);
+      }
+
+      // Recharger la page après un court délai pour voir les changements
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+
+      onClose();
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde:', error);
+      setError(error.message || (language === 'fr' ? 'Erreur lors de la sauvegarde' : 'Error saving mood'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleActivity = (activity) => {
@@ -151,7 +205,7 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-purple-200">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-t-3xl flex items-center justify-between">
+        <div className="sticky top-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-t-3xl flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <Heart className="w-7 h-7" />
             <div>
@@ -174,6 +228,13 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {/* Erreur */}
+          {error && (
+            <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
           {/* Sélection d'humeur */}
           <div>
             <h3 className="text-lg font-bold text-purple-900 mb-3">
@@ -204,12 +265,12 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
               {/* Note */}
               <div className="animate-in slide-in-from-top">
                 <label className="block text-purple-900 font-semibold mb-2">
-                  💭 {t('whatHappening')}
+                  💭 {language === 'fr' ? 'Que s\'est-il passé ?' : 'What happened?'}
                 </label>
                 <textarea
                   value={moodNote}
                   onChange={(e) => setMoodNote(e.target.value)}
-                  placeholder={t('tellUs')}
+                  placeholder={language === 'fr' ? 'Raconte ta journée...' : 'Tell us about your day...'}
                   className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 focus:border-purple-400 focus:outline-none resize-none"
                   rows="3"
                 />
@@ -218,7 +279,7 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
               {/* Activités */}
               <div className="animate-in slide-in-from-top">
                 <label className="block text-purple-900 font-semibold mb-2">
-                  ⚡ {t('whatDidYouDo')}
+                  ⚡ {language === 'fr' ? 'Qu\'as-tu fait ?' : 'What did you do?'}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {activities.map(activity => (
@@ -244,21 +305,31 @@ const MoodEditModal = ({ isOpen, onClose, date }) => {
         <div className="sticky bottom-0 bg-purple-100 p-4 rounded-b-3xl border-t-2 border-purple-200 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-bold hover:bg-gray-300 transition-all"
+            disabled={isLoading}
+            className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-bold hover:bg-gray-300 transition-all disabled:opacity-50"
           >
             {language === 'fr' ? 'Annuler' : 'Cancel'}
           </button>
           <button
             onClick={handleSave}
-            disabled={!selectedMood}
+            disabled={!selectedMood || isLoading}
             className={`flex-2 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-              selectedMood
+              selectedMood && !isLoading
                 ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:scale-105 shadow-lg'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            <Save className="w-5 h-5" />
-            {language === 'fr' ? 'Enregistrer' : 'Save'}
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {language === 'fr' ? 'Enregistrement...' : 'Saving...'}
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                {language === 'fr' ? 'Enregistrer' : 'Save'}
+              </>
+            )}
           </button>
         </div>
       </div>

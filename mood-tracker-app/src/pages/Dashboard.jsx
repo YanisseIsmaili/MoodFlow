@@ -1,4 +1,4 @@
-// src/page/Dashboard.jsx
+// src/pages/Dashboard.jsx
 import React, { useRef, useState } from 'react';
 import { useDashboard } from '../contexts/DashboardContext';
 import Header from '../components/layout/Header';
@@ -12,6 +12,7 @@ import FocusTimer from '../components/dashboard/FocusTimer';
 import QuickActions from '../components/dashboard/QuickActions';
 import MoodBoard from '../components/dashboard/MoodBoard';
 import CalendarWidget from '../components/dashboard/CalendarWidget';
+import BreathingExercise from '../components/dashboard/BreathingExercise';  // ⬅️ AJOUTÉ
 
 const Dashboard = ({ onOpenSettings }) => {
   const { widgets, editMode, WIDGET_TYPES, toggleWidget, setSidebarOpen } = useDashboard();
@@ -102,6 +103,8 @@ const Dashboard = ({ onOpenSettings }) => {
         return <MoodBoard />;
       case WIDGET_TYPES.CALENDAR:
         return <CalendarWidget />;
+      case WIDGET_TYPES.BREATHING:  // ⬅️ AJOUTÉ
+        return <BreathingExercise />;
       default:
         return null;
     }
@@ -144,7 +147,7 @@ const Dashboard = ({ onOpenSettings }) => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {visibleWidgets.map((widget) => (
             <div key={widget.id} className={`${getWidgetClass(widget.id)} flex`}>
               <DraggableWidget id={widget.id} className="w-full">
