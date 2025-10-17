@@ -25,7 +25,7 @@ const Header = ({ onOpenSettings }) => {
         <div className="flex items-center gap-3">
           {user && (
             <div className="text-amber-700 text-sm mr-2">
-              {t('welcome')}, {user.name}
+              {t('welcome')}, {user.username}
             </div>
           )}
           <button className="p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all shadow-lg">
