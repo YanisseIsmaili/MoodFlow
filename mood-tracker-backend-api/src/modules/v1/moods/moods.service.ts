@@ -86,11 +86,6 @@ export class MoodsService {
     }
     
     async findByUsernameAndMonth(date: string, user: User): Promise<Mood[]> {
-        // const user = await this.userRepository.findOne({ where: { username } });
-        // if (!user) {
-        //     throw new NotFoundException('User not found');
-        // }
-
         // Convertir la chaîne reçue en Date
         const targetDate = new Date(date);
         if (isNaN(targetDate.getTime())) {
