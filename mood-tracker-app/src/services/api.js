@@ -109,7 +109,7 @@ class ApiService {
     
     try {
       // Essayer d'abord l'endpoint avec JWT
-      const result = await this.makeRequest(`/api/v1/moods/${username}?date=${date}`);
+      const result = await this.makeRequest(`/api/v1/moods/month?date=${date}`);
       // S'assurer que nous retournons toujours un tableau
       return Array.isArray(result) ? result : (result.moods || []);
     } catch (error) {

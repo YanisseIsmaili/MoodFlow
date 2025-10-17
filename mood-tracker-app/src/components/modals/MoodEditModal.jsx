@@ -142,8 +142,7 @@ const MoodEditModal = ({ isOpen, onClose, date, moodHistory = [], setMoodHistory
       const moodData = {
         date: dateStr,
         state: selectedMood,
-        description: moodNote || undefined,
-        username: user.username
+        description: moodNote || undefined
       };
 
       // Envoyer à l'API
