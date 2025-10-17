@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./mood-tracker-backend-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - ./mood-tracker-backend-api/database:/app/database
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./mood-tracker-app
+      args:
+        VITE_API_URL: http://localhost:3000
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
